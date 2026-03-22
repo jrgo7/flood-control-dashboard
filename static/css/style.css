@@ -1,0 +1,65 @@
+:root {
+  --background: hsl(0, 0%, 10%);
+  --background-front: hsl(0, 0%, 16%);
+  --border: hsl(0, 0%, 24%);
+  --text: hsl(0, 0%, 90%);
+}
+
+* {
+  color: var(--text);
+  font-family: sans-serif;
+}
+
+html,
+body {
+  background-color: var(--background);
+  margin: 0;
+  height: 100%;
+}
+
+body {
+  display: flex;
+  flex-direction: column;
+}
+
+header,
+footer {
+  background-color: var(--background-front);
+  padding: 1em 2ch;
+  display: flex;
+}
+
+header {
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  justify-content: space-between;
+}
+
+footer {
+  border-top: 1px solid var(--border);
+}
+
+main {
+  flex-grow: 1;
+  margin: 1em 2ch;
+  display: flex;
+}
+
+h1 {
+  font-size: medium;
+  margin: 0;
+}
+
+.panel-group {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+.panel {
+  background-color: var(--background-front);
+  border: 1px solid var(--border);
+  margin: 0.5em 1ch;
+  padding: 1em 2ch;
+  border-radius: 16px;
+}
