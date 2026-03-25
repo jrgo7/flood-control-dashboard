@@ -1,0 +1,9 @@
+/* Leaflet CSS */
+
+.leaflet-container {
+    background-color: #1a3317 !important; /* Your dark green */
+}
+
+#map {
+  height: 500px;
+}

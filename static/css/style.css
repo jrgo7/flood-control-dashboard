@@ -1,3 +1,7 @@
+/* Other CSS files */
+
+@import url("map.css");
+
 :root {
   --background: hsl(0, 0%, 10%);
   --background-front: hsl(0, 0%, 16%);
