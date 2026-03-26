@@ -4,6 +4,12 @@
     background-color: #1a3317 !important; /* Your dark green */
 }
 
+.leaflet-popup-content,
+.leaflet-popup-content strong{
+  color:black;
+}
+
+
 #map {
   height: 500px;
 }
