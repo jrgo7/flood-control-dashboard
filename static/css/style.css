@@ -1,6 +1,8 @@
 /* Other CSS files */
 
 @import url("map.css");
+@import url("flood_control_projects.css");
+@import url("regional_stats.css");
 
 :root {
   --background: hsl(0, 0%, 10%);
@@ -47,11 +49,19 @@ main {
   flex-grow: 1;
   margin: 1em 2ch;
   display: flex;
+  justify-content:space-around;
+  min-height: 0; /* ensures flex children can shrink */
 }
 
 h1 {
   font-size: medium;
   margin: 0;
+}
+
+h2{
+  font-size: 1rem;
+  margin-bottom: 15px;
+  color: #fff;
 }
 
 .panel-group {
@@ -66,4 +76,19 @@ h1 {
   margin: 0.5em 1ch;
   padding: 1em 2ch;
   border-radius: 16px;
+}
+
+#left-panels {
+  display: flex;
+  flex-direction: column;
+  flex: 5;
+  min-height: 0;
+}
+
+
+#right-panels {
+  display: flex;
+  flex-direction: column;
+  flex: 4.5;
+  min-height: 0;
 }

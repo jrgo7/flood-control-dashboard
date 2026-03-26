@@ -11,6 +11,7 @@ const getRiskColor = (level) => {
     return colors[level] || "#808080"
 };
 
+// TODO: is it possible to set this to just PH?
 // Coordinates: [12.8797, 121.7740], Zoom level: 6
 document.addEventListener('DOMContentLoaded', () => {
     //print(geojsonData)
@@ -39,7 +40,33 @@ document.addEventListener('DOMContentLoaded', () => {
             Flood risk: ${proj.RiskLevel}
         `);
     });
-    // TODO: display: flex the whole dashboard. IMPORTANT charts have infinite height, make sure to set a limit either it or it's parents
+
+    const listContainer = document.querySelector(".projects-list");
+    listContainer.innerHTML = "";
+
+    // Show only top 50 to avoid lag
+    projectData.forEach((p) => {
+      const btn = document.createElement("button");
+      btn.className = "project-item";
+      btn.textContent = p.ProjectName;
+      btn.addEventListener("click", () => {
+        document
+          .querySelectorAll(".project-item")
+          .forEach((b) => b.classList.remove("active"));
+        btn.classList.add("active");
+
+        // Focus map
+        map.setView([p.ProjectLatitude, p.ProjectLongitude], 10);
+
+        // Show Project Specific View
+        showProjectView(p);
+      });
+
+      listContainer.appendChild(btn);
+    });
+    
+    // TODO: display: flex the whole dashboard. 
+    // NOTE: charts have infinite height, make sure to set a limit either it or it's parents
     createBarChart("budgetChart", regions, avgBudget, "Avg Budget");
     createBarChart("countChart", regions, projectCount, "Projects");
 });

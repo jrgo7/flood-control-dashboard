@@ -1,7 +1,6 @@
-#regional-stats h2{
-  font-size: 1rem;
-  margin-bottom: 15px;
-  color: #fff;
+#regional-stats {
+  flex: 0 0 300px; 
+  min-height: 0;
 }
 
 .charts-container {
