@@ -7,6 +7,14 @@
       rel="stylesheet"
       href="{{ url_for('static', filename='css/style.css') }}"
     />
+
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='css/regional_stats.css') }}"
+    />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+
     <title>{% block title %}Flood Control Dashboard{% endblock %}</title>
 
     <!-- Read shape files -->
@@ -27,14 +35,18 @@
     ></script>
 
     <!-- Load from static directory -->
+
+    <script>
+        const projectData = {{ projects | tojson | safe }};
+        const regions = {{ regions | tojson | safe }};
+        const avgBudget = {{ avg_budget | tojson | safe }};
+        const projectCount = {{ project_count | tojson | safe }};
+    </script>
+
     <script
       defer
       src="{{ url_for('static', filename='js/script.js') }}"
     ></script>
-
-    <script>
-        const projectData = {{ projects | tojson | safe }};
-    </script>
 
     <link
       rel="stylesheet"

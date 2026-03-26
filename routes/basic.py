@@ -37,5 +37,27 @@ def get_index():
         ]
     ].to_dict(orient="records")
 
+    joined["ApprovedBudgetForContract"] = pd.to_numeric(joined["ApprovedBudgetForContract"], errors="coerce")
+
+    regional_stats = joined.groupby("Region").agg(
+        avg_budget=("ApprovedBudgetForContract", "mean"),
+        project_count=("ProjectName", "count")
+    ).reset_index()
+
+    # Prepare data for charts
+    regions = regional_stats["Region"].fillna("Unknown").tolist()
+    avg_budget = regional_stats["avg_budget"].fillna(0).tolist()
+    project_count = regional_stats["project_count"].tolist()
+
+    regions = regional_stats["Region"].fillna("Unknown").tolist()
+    avg_budget = regional_stats["avg_budget"].fillna(0).tolist()
+    project_count = regional_stats["project_count"].tolist()
+
     # TODO: Unsure if this is the best way to pass data to the HTML side
-    return render_template("index.html", projects=project_list)
+    return render_template(
+        "index.html",
+        projects=project_list,
+        regions=regions,
+        avg_budget=avg_budget,
+        project_count=project_count
+    )
