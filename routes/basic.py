@@ -53,11 +53,25 @@ def get_index():
     avg_budget = regional_stats["avg_budget"].fillna(0).tolist()
     project_count = regional_stats["project_count"].tolist()
 
+    gdf_municities = gpd.read_file("data/shapefiles/Municities.shp.shp")
+
+    gdf_municities = gdf_municities[["geometry", "adm3_en"]].rename(
+        columns={"adm3_en": "name"}
+    )
+    # Ensure it's in WGS84 (Leaflet needs this)
+    gdf_municities = gdf_municities.to_crs(epsg=4326)
+
+    # TODO: somehow complexify this per zoom level? 
+    gdf_municities["geometry"] = gdf_municities["geometry"].simplify(0.001)
+    # Convert to GeoJSON
+    municities_geojson = gdf_municities.to_json()
+
     # TODO: Unsure if this is the best way to pass data to the HTML side
     return render_template(
         "index.html",
         projects=project_list,
         regions=regions,
         avg_budget=avg_budget,
-        project_count=project_count
+        project_count=project_count,
+        municities=municities_geojson
     )

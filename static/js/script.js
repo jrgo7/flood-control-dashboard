@@ -23,6 +23,54 @@ document.addEventListener('DOMContentLoaded', () => {
         maxZoom: 18
     }).addTo(map);
 
+    let geojson;
+
+    function municityStyle() {
+      return {
+        color: "#00ffff",
+        weight: 2,
+        fillColor: "#00ffff",
+        fillOpacity: 0.2
+      };
+    }
+
+    function highlightFeature(e) {
+      const layer = e.target;
+
+      layer.setStyle({
+        weight: 3,
+        fillOpacity: 0.4
+      });
+
+      layer.bringToFront();
+    }
+
+    function resetHighlight(e) {
+      geojson.resetStyle(e.target);
+    }
+
+    function onEachFeature(feature, layer) {
+      const name = feature.properties.name;
+    
+      layer.bindTooltip(name, { sticky: true });
+
+      layer.on({
+        mouseover: highlightFeature,
+        mouseout: resetHighlight,
+        click: zoomToFeature
+      });
+    }
+
+    function zoomToFeature(e) {
+        map.fitBounds(e.target.getBounds());
+        e.target.blur();
+    }
+
+    geojson = L.geoJSON(municities, {
+      style: municityStyle,
+      onEachFeature: onEachFeature
+    }).addTo(map);
+
     projectData.forEach(proj => {
         const color = getRiskColor(proj.RiskLevel)
 
@@ -44,7 +92,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const listContainer = document.querySelector(".projects-list");
     listContainer.innerHTML = "";
 
-    // Show only top 50 to avoid lag
     projectData.forEach((p) => {
       const btn = document.createElement("button");
       btn.className = "project-item";
