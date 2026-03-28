@@ -7,9 +7,12 @@ routes = Blueprint("basic", __name__, template_folder="templates")
 
 @routes.get("/")
 def get_index():
-    # Load coordinates of flood control projects
     df = pd.read_csv("data/dpwh_flood_control_projects.csv")
     df = df.dropna(subset=["ProjectLatitude", "ProjectLongitude"])
+
+    # Preprocess
+    df = df[df["Province"] == "Cavite"]
+    df["ProjectName"] = df["ProjectName"].str.removeprefix("Construction of ")
 
     # GeoPandas
     gdf_projects = gpd.GeoDataFrame(

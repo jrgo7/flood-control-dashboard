@@ -5,5 +5,10 @@
 }
 
 #map {
-  height: 500px;
+  height: 40vh;
+}
+
+.leaflet-popup-content-wrapper, .leaflet-popup-tip {
+  background-color: var(--background-front) !important;
+  border: 1px solid var(--border);
 }

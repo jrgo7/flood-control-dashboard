@@ -1,0 +1,14 @@
+:root {
+  --background: hsl(0, 0%, 10%);
+  --background-front: hsl(0, 0%, 16%);
+  --border: hsl(0, 0%, 24%);
+  --text: hsl(0, 0%, 90%);
+  --background-primary: hsl(120, 40%, 32%);
+  --background-primary-hover: hsl(120, 40%, 48%);
+  --ribbons-height: 1.5em
+}
+
+* {
+  color: var(--text);
+  font-family: sans-serif;
+}

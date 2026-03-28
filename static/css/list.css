@@ -1,0 +1,26 @@
+#flood-control-projects {
+    max-height: 40vh;
+}
+
+#flood-control-projects-list {
+    list-style-type: none;
+    overflow-y: scroll;
+    overflow-x: hidden;
+    max-height: inherit;
+    padding: 0;
+    margin: 0;
+}
+
+#flood-control-projects-list > li {
+    background-color: var(--background-primary);
+    margin: 1em 2ch;
+    padding: 0.5em 1ch;
+    border-radius: 16px;
+    /* text-overflow: ellipsis; */
+    user-select: none;
+}
+
+#flood-control-projects-list > li:hover {
+    background-color: var(--background-primary-hover);
+    cursor: pointer;
+}

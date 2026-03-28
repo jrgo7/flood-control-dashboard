@@ -1,41 +1,68 @@
 const getRiskColor = (level) => {
-    // TODO: Better colors
-    const colors = {
-        3: "#ff0000",
-        2: "#ffff00",
-        1: "#00ff00",
-    };
+  // TODO: Better colors
+  const colors = {
+    3: "hsl(0, 100%, 50%)",
+    2: "hsl(60, 100%, 50%)",
+    1: "hsl(120, 100%, 50%)",
+  };
 
-    // Gray by default
-    return colors[level] || "#808080"
+  // Gray by default
+  return colors[level] || "#808080";
 };
 
-// Coordinates: [12.8797, 121.7740], Zoom level: 6
-document.addEventListener('DOMContentLoaded', () => {
-    //print(geojsonData)
+const markers = new Map();
 
-    const map = L.map('map').setView([12.8797, 121.7740], 6);
+const markProjectToMap = (proj, map) => {
+  const color = getRiskColor(proj.RiskLevel);
+  const coordinates = [proj.ProjectLatitude, proj.ProjectLongitude];
+  const style = {
+    radius: 6,
+    fillColor: color,
+    color: "#fff",
+    weight: 1,
+    fillOpacity: 0.8,
+  };
+  const popupHTML =
+    `<strong>${proj.ProjectName}</strong><br>` +
+    `Budget: ₱${proj.ApprovedBudgetForContract.toLocaleString()}<br>` +
+    `Flood risk: ${proj.RiskLevel}`;
+  const marker = L.circleMarker(coordinates, style);
+  marker.addTo(map);
+  marker.bindPopup(popupHTML);
+  markers.set(proj.ProjectName, marker);
+};
 
-    L.tileLayer('https://tiles.stadiamaps.com/tiles/stamen_terrain/{z}/{x}/{y}{r}.png', {
-        attribution: '© Stadia Maps, © Stamen Design, © OpenStreetMap contributors',
-        maxZoom: 18
-    }).addTo(map);
+const listProject = (proj, map) => {
+  floodControlProjects = document.querySelector("#flood-control-projects-list");
+  projectListing = document.createElement("li");
+  projectListing.innerText = proj.ProjectName;
+  projectListing.onclick = () => {
+    map.flyTo([proj.ProjectLatitude, proj.ProjectLongitude], 18);
+    markers.get(proj.ProjectName).openPopup();
+  };
+  floodControlProjects.appendChild(projectListing);
+};
 
-    projectData.forEach(proj => {
-        const color = getRiskColor(proj.RiskLevel)
+document.addEventListener("DOMContentLoaded", () => {
+  //print(geojsonData)
 
-        L.circleMarker([proj.ProjectLatitude, proj.ProjectLongitude], {
-            radius: 6,
-            fillColor: color,
-            color: "#fff",
-            weight: 1,
-            fillOpacity: 0.8
-        })
-        .addTo(map)
-        .bindPopup(`
-            <strong>${proj.ProjectName}</strong><br>
-            Budget: ₱${proj.ApprovedBudgetForContract.toLocaleString()}<br>
-            Flood risk: ${proj.RiskLevel}
-        `);
-    });
+  // [longitude, latitude], zoom level
+  // viewPhilippines = [[12.8797, 121.7740], 6];
+  viewCavite = [[14.3456, 120.9365], 11];
+
+  const map = L.map("map").setView(...viewCavite);
+
+  L.tileLayer(
+    "https://tiles.stadiamaps.com/tiles/stamen_terrain/{z}/{x}/{y}{r}.png",
+    {
+      attribution:
+        "© Stadia Maps, © Stamen Design, © OpenStreetMap contributors",
+      maxZoom: 18,
+    },
+  ).addTo(map);
+
+  projectData.forEach((proj) => {
+    markProjectToMap(proj, map);
+    listProject(proj, map);
+  });
 });
