@@ -43,6 +43,8 @@ const listProject = (proj, map) => {
   floodControlProjects.appendChild(projectListing);
 };
 
+const viewButtons = document.querySelectorAll('#viewToggle button');
+
 document.addEventListener("DOMContentLoaded", () => {
   //print(geojsonData)
 
@@ -68,6 +70,15 @@ document.addEventListener("DOMContentLoaded", () => {
 
   createBarChart("budgetChart", regions, avgBudget, "Avg Budget", "hsl(120, 40%, 32%)");
   createBarChart("countChart", regions, projectCount, "Projects", "hsl(120, 40%, 32%)");
+
+  viewButtons.forEach(button => {
+    button.addEventListener('click', function() {
+      viewButtons.forEach(btn => btn.classList.remove('active'));
+      this.classList.add('active');
+      updateChartVisibility(this.getAttribute('data-view'));
+    });
+  });
+
 });
 
 function createBarChart(canvasId, labels, data, labelText, barColor) {
@@ -84,7 +95,7 @@ function createBarChart(canvasId, labels, data, labelText, barColor) {
         },
         options: {
             responsive: true,
-            maintainAspectRatio: false,
+            maintainAspectRatio: true,
             scales: {
                 y: { 
                     beginAtZero: true, 
@@ -99,4 +110,22 @@ function createBarChart(canvasId, labels, data, labelText, barColor) {
             plugins: { legend: { display: false } },
         }
     });
+}
+
+function updateChartVisibility(view) {
+  const budgetChart = document.getElementById('budgetContainer');
+  const countChart = document.getElementById('countContainer');
+
+  if (!budgetChart || !countChart) return;
+
+  if (view === 'both') {
+    budgetChart.style.display = 'flex';
+    countChart.style.display = 'flex';
+  } else if (view === 'budget') {
+    budgetChart.style.display = 'flex';
+    countChart.style.display = 'none';
+  } else if (view === 'count') {
+    budgetChart.style.display = 'none';
+    countChart.style.display = 'flex';
+  }
 }
