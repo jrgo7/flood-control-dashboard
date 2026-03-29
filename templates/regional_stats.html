@@ -1,1 +1,43 @@
-<span> TODO: Regional stats panel </span>
+<section class="regional-stats-panel">
+  <div class="header-row">
+    <h2>Regional Statistics</h2>
+
+    <!-- Rehaul soon tm, just the base form for now-->
+    <div class="controls">
+      <!-- Sort -->
+      <select id="rangeFilter">
+        <option value="all">All Regions</option>
+        <option value="top5">Default</option>
+        <option value="bottom5">list regions here</option>
+      </select>
+
+      <!-- Sort -->
+      <select id="sortOption">
+        <option value="default">Default</option>
+        <option value="alpha">Alphabetical</option>
+        <option value="highest">Highest Budget</option>
+        <option value="lowest">Lowest Budget</option>
+      </select>
+
+      <!-- View Toggle -->
+      <div class="toggle-group" id="viewToggle">
+        <button data-view="both" class="active">Both</button>
+        <button data-view="budget">Budget</button>
+        <button data-view="count">Projects</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- CHARTS -->
+  <div class="charts-grid">
+    <div class="chart-card" id="budgetContainer">
+      <h3>Budget Allocation</h3>
+      <canvas id="budgetChart"></canvas>
+    </div>
+
+    <div class="chart-card" id="countContainer">
+      <h3>Project Count</h3>
+      <canvas id="countChart"></canvas>
+    </div>
+  </div>
+</section>

@@ -12,6 +12,8 @@
     <!-- Read shape files -->
     <script defer src="https://unpkg.com/shpjs@latest/dist/shp.js"></script>
 
+    <!-- Chart.js -->
+    <script defer src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <!-- Leaflet -->
     <link
       rel="stylesheet"
@@ -34,6 +36,9 @@
 
     <script>
         const projectData = {{ projects | tojson | safe }};
+        const regions = {{ region_names | tojson | safe }};
+        const avgBudget = {{ avg_budget | tojson  | safe}};
+        const projectCount = {{ project_count | tojson | safe }};
     </script>
 
     <link

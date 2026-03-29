@@ -65,4 +65,38 @@ document.addEventListener("DOMContentLoaded", () => {
     markProjectToMap(proj, map);
     listProject(proj, map);
   });
+
+  createBarChart("budgetChart", regions, avgBudget, "Avg Budget", "hsl(120, 40%, 32%)");
+  createBarChart("countChart", regions, projectCount, "Projects", "hsl(120, 40%, 32%)");
 });
+
+function createBarChart(canvasId, labels, data, labelText, barColor) {
+    return new Chart(document.getElementById(canvasId), {
+        type: "bar",
+        data: {
+            labels: labels,
+            datasets: [{
+                label: labelText,
+                data: data,
+                backgroundColor: barColor,
+                hoverBackgroundColor: "hsl(120, 40%, 48%)",
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: { 
+                    beginAtZero: true, 
+                    grid: { color: "hsl(0, 0%, 24%)" },
+                    ticks: { color: "#fff" } 
+                },
+                x: {
+                    grid: { display: false },
+                    ticks: { font: { size: 9 }, maxRotation: 45, minRotation: 45, color: "#fff"  }
+                }
+            },
+            plugins: { legend: { display: false } },
+        }
+    });
+}

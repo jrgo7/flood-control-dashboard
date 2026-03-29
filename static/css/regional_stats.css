@@ -1,0 +1,97 @@
+.regional-stats-panel{
+  max-height: 50vh;
+}
+
+.header-row {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  gap: 20px;
+
+}
+
+.controls {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  justify-content: flex-start;
+}
+
+.controls select{
+  padding: 6px 10px;
+  border-radius: 8px;
+  border: none;
+  background: var(--background);
+  color: var(--text);
+  font-size: 13px;
+  outline: none;
+  transition: 0.2s;
+}
+
+.controls select:hover {
+  background: var(--border);
+}
+/* It does not work, TODO for Red: create a custom dropdown 
+ * The dropdown will have checkboxes for checking off regions too
+ * [X] Region I
+ * [X] Region II
+ * [X] Default
+ * *Clear* 
+ * Due: April 1
+ */
+.controls select option:hover {
+  background-color: var(--background-primary-hover) !important;
+}
+
+.toggle-group {
+  display: flex;
+  background: var(--background);
+  border-radius: 10px;
+  padding: 3px;
+}
+
+.toggle-group button {
+  padding: 6px 10px;
+  border: none;
+  background: transparent;
+  color: var(--text);
+  font-size: 13px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.toggle-group button:hover {
+  color: white;
+  background: var(--background-primary-hover);
+}
+
+.toggle-group button.active {
+  background: var(--background-primary);
+  color: var(--text);
+  font-weight: 600;
+}
+
+.toggle-group button.active:hover {
+  background: var(--background-primary-hover);
+  color: var(--text);
+  font-weight: 600;
+}
+
+
+/* Charts ======*/
+
+/* Container holding both charts */
+.charts-grid {
+  display: flex;
+  gap: 20px;
+  width: 100%;
+  flex: 1;
+  min-height: 0;
+}
+.chart-card {
+  position: relative;
+  max-height: 20vh;
+  width: 100%;        
+  flex: 1;
+}
