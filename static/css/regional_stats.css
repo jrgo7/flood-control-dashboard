@@ -1,6 +1,8 @@
 .regional-stats-panel{
   max-height: 50vh;
   max-width: 50vw;
+  display: flex;
+  flex-direction: column;
 }
 
 .header-row {
@@ -97,12 +99,10 @@
   flex-wrap: nowrap;
 }
 
-/* TODO: understand why it won't shrink to fit the parent container, once the button gets pressed to "both" */
 .chart-card {
   display: flex;
   flex-direction: column;
   position: relative;
-  max-height: 30vh;
   flex: 1 1 0;
   padding: 15px 15px 75px 15px;
   box-sizing: border-box;
@@ -117,4 +117,9 @@
 .chart-card:hover {
   transform: translateY(-2px);
   box-shadow: 0 10px 25px rgba(0,0,0,0.6);
+}
+
+.chart-card canvas {
+  width: 100% !important;
+  height: 100% !important;
 }

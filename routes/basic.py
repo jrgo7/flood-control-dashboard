@@ -11,7 +11,7 @@ def get_index():
     df = df.dropna(subset=["ProjectLatitude", "ProjectLongitude"])
 
     # Preprocess
-    df = df[df["Province"] == "Cavite"]
+    # df = df[df["Province"] == "Cavite"]
     df["ProjectName"] = df["ProjectName"].str.removeprefix("Construction of ")
 
     # GeoPandas

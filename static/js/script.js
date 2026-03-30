@@ -94,8 +94,10 @@ function createBarChart(canvasId, labels, data, labelText, barColor) {
             }]
         },
         options: {
+            indexAxis: 'y',
             responsive: true,
-            maintainAspectRatio: true,
+            maintainAspectRatio: false,
+            
             scales: {
                 y: { 
                     beginAtZero: true, 
