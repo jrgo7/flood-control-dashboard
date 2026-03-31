@@ -73,12 +73,12 @@ const closeDropdownsOnOutsideClick = () => {
 
 const populateRegionDropdown = (regions, dropdown) => {
   regions.forEach(region => {
-    const item = document.createElement("div");
-    item.className = "dropdown_item has-checkbox";
+    const item = document.createElement("li");
+    item.className = "dropdown_item has-checkbox region-checkbox";
 
     item.innerHTML = `
       <label class="custom-checkbox">
-        <input type="checkbox">
+        <input type="checkbox" value="${region}">
         <span class="checkmark"></span>
         <span class="label-text">${region}</span>
       </label>
@@ -139,7 +139,94 @@ const createBarChart = (canvasId, labels, data, labelText, barColor) => {
   });
 };
 
+/* CHart wiring */
+let map;
+let budgetChartInstance = null;
+let countChartInstance = null;
 
+let activeRegions = new Set();
+let currentSort = 'default';
+
+const updateCharts = () => {
+  let data = regions.map((r, i) => ({
+    region: r,
+    budget: avgBudget[i],
+    count: projectCount[i]
+  }));
+
+  if (activeRegions.size > 0) {
+    data = data.filter(d => activeRegions.has(d.region));
+  }
+
+  if (currentSort === 'highest_budget') {
+    data.sort((a, b) => b.budget - a.budget);
+  } else if (currentSort === 'lowest_budget') {
+    data.sort((a, b) => a.budget - b.budget);
+  } else if (currentSort === 'highest_count') {
+    data.sort((a, b) => b.count - a.count);
+  } else if (currentSort === 'lowest_count') {
+    data.sort((a, b) => a.count - b.count);
+  }
+
+  const newLabels = data.map(d => d.region);
+  const newBudgets = data.map(d => d.budget);
+  const newCounts = data.map(d => d.count);
+
+  if (budgetChartInstance) {
+    budgetChartInstance.data.labels = newLabels;
+    budgetChartInstance.data.datasets[0].data = newBudgets;
+    budgetChartInstance.update();
+  }
+
+  if (countChartInstance) {
+    countChartInstance.data.labels = newLabels;
+    countChartInstance.data.datasets[0].data = newCounts;
+    countChartInstance.update();
+  }
+};
+
+const setupRegionFilter = () => {
+  const checkboxes = document.querySelectorAll('.region-checkbox input[type="checkbox"]');
+  const clearBtn = document.querySelector('li[value="clear"]');
+
+  checkboxes.forEach(cb => {
+    cb.addEventListener('change', (e) => {
+      if (e.target.checked) {
+        activeRegions.add(e.target.value);
+      } else {
+        activeRegions.delete(e.target.value);
+      }
+      updateCharts();
+    });
+  });
+
+  if (clearBtn) {
+    clearBtn.addEventListener('click', () => {
+      activeRegions.clear();
+      checkboxes.forEach(c => c.checked = false);
+      document.getElementById('regionDropdown').classList.remove('show');
+      updateCharts();
+    });
+  }
+  
+};
+
+const setupSortDropdown = () => {
+  const sortItems = document.querySelectorAll('#sortDropdown .dropdown_item');
+  const sortLabel = document.getElementById('sortDropdownLabel');
+
+  sortItems.forEach(item => {
+    item.addEventListener('click', (e) => {
+      currentSort = item.getAttribute('value');
+      
+      sortLabel.innerText = item.innerText; 
+
+      document.getElementById('sortDropdown').classList.remove('show');
+      
+      updateCharts();
+    });
+  });
+};
 
 document.addEventListener("DOMContentLoaded", () => {
   //print(geojsonData)
@@ -148,7 +235,7 @@ document.addEventListener("DOMContentLoaded", () => {
   // viewPhilippines = [[12.8797, 121.7740], 6];
   viewCavite = [[14.3456, 120.9365], 11];
 
-  const map = L.map("map").setView(...viewCavite);
+  map = L.map("map").setView(...viewCavite);
 
   L.tileLayer(
     "https://tiles.stadiamaps.com/tiles/stamen_terrain/{z}/{x}/{y}{r}.png",
@@ -164,8 +251,8 @@ document.addEventListener("DOMContentLoaded", () => {
     listProject(proj, map);
   });
 
-  createBarChart("budgetChart", regions, avgBudget, "Avg Budget", "hsl(120, 40%, 32%)");
-  createBarChart("countChart", regions, projectCount, "Projects", "hsl(120, 40%, 32%)");
+  budgetChartInstance = createBarChart("budgetChart", regions, avgBudget, "Avg Budget", "hsl(120, 40%, 32%)");
+  countChartInstance = createBarChart("countChart", regions, projectCount, "Projects", "hsl(120, 40%, 32%)");
 
   setupViewButtons();
 
@@ -180,5 +267,8 @@ document.addEventListener("DOMContentLoaded", () => {
   toggleDropdown(regionLabel, regionDropdown);
   toggleDropdown(sortLabel, sortDropdown);
   closeDropdownsOnOutsideClick();
+
+  setupRegionFilter();
+  setupSortDropdown();
 
 });

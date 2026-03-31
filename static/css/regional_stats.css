@@ -164,7 +164,7 @@
   cursor: pointer;
   user-select: none;
   background: var(--background);
-  width: 125px;
+  width: 135px;
   padding: 10px;
   font-size: 13px;
 }
