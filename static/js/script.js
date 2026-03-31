@@ -43,7 +43,103 @@ const listProject = (proj, map) => {
   floodControlProjects.appendChild(projectListing);
 };
 
-const viewButtons = document.querySelectorAll('#viewToggle button');
+
+const setupViewButtons = () => {
+  const buttons = document.querySelectorAll('#viewToggle button');
+
+  buttons.forEach(button => {
+    button.addEventListener('click', function () {
+      buttons.forEach(btn => btn.classList.remove('active'));
+      this.classList.add('active');
+      updateChartVisibility(this.dataset.view);
+    });
+  });
+};
+
+const toggleDropdown = (label, dropdown) => {
+  label.addEventListener("click", () => {
+    dropdown.classList.toggle("show");
+  });
+};
+
+const closeDropdownsOnOutsideClick = () => {
+  document.addEventListener("click", (e) => {
+    if (!e.target.closest(".dropdown-container")) {
+      document.querySelectorAll(".dropdown")
+        .forEach(d => d.classList.remove("show"));
+    }
+  });
+};
+
+const populateRegionDropdown = (regions, dropdown) => {
+  regions.forEach(region => {
+    const item = document.createElement("div");
+    item.className = "dropdown_item has-checkbox";
+
+    item.innerHTML = `
+      <label class="custom-checkbox">
+        <input type="checkbox">
+        <span class="checkmark"></span>
+        <span class="label-text">${region}</span>
+      </label>
+    `;
+
+    dropdown.appendChild(item);
+  });
+};
+
+const updateChartVisibility = (view) => {
+  const budget = document.getElementById('budgetContainer');
+  const count = document.getElementById('countContainer');
+
+  if (!budget || !count) return;
+
+  budget.style.display =
+    (view === 'both' || view === 'budget') ? 'flex' : 'none';
+
+  count.style.display =
+    (view === 'both' || view === 'count') ? 'flex' : 'none';
+};
+
+
+const createBarChart = (canvasId, labels, data, labelText, barColor) => {
+  return new Chart(document.getElementById(canvasId), {
+    type: "bar",
+    data: {
+      labels: labels,
+      datasets: [{
+        label: labelText,
+        data: data,
+        backgroundColor: barColor,
+        hoverBackgroundColor: "hsl(120, 40%, 48%)",
+      }]
+    },
+    options: {
+      indexAxis: 'y',
+      responsive: true,
+      maintainAspectRatio: false,
+      scales: {
+        y: { 
+          beginAtZero: true, 
+          grid: { color: "hsl(0, 0%, 24%)" },
+          ticks: { color: "#fff" } 
+        },
+        x: {
+          grid: { display: false },
+          ticks: { 
+            font: { size: 9 },
+            maxRotation: 45,
+            minRotation: 45,
+            color: "#fff"
+          }
+        }
+      },
+      plugins: { legend: { display: false } },
+    }
+  });
+};
+
+
 
 document.addEventListener("DOMContentLoaded", () => {
   //print(geojsonData)
@@ -71,63 +167,18 @@ document.addEventListener("DOMContentLoaded", () => {
   createBarChart("budgetChart", regions, avgBudget, "Avg Budget", "hsl(120, 40%, 32%)");
   createBarChart("countChart", regions, projectCount, "Projects", "hsl(120, 40%, 32%)");
 
-  viewButtons.forEach(button => {
-    button.addEventListener('click', function() {
-      viewButtons.forEach(btn => btn.classList.remove('active'));
-      this.classList.add('active');
-      updateChartVisibility(this.getAttribute('data-view'));
-    });
-  });
+  setupViewButtons();
+
+  const regionDropdown = document.getElementById("regionDropdown");
+  const regionLabel = document.getElementById("regionDropdownLabel");
+
+  const sortDropdown = document.getElementById("sortDropdown");
+  const sortLabel = document.getElementById("sortDropdownLabel");
+
+  populateRegionDropdown(regions, regionDropdown);
+
+  toggleDropdown(regionLabel, regionDropdown);
+  toggleDropdown(sortLabel, sortDropdown);
+  closeDropdownsOnOutsideClick();
 
 });
-
-function createBarChart(canvasId, labels, data, labelText, barColor) {
-    return new Chart(document.getElementById(canvasId), {
-        type: "bar",
-        data: {
-            labels: labels,
-            datasets: [{
-                label: labelText,
-                data: data,
-                backgroundColor: barColor,
-                hoverBackgroundColor: "hsl(120, 40%, 48%)",
-            }]
-        },
-        options: {
-            indexAxis: 'y',
-            responsive: true,
-            maintainAspectRatio: false,
-            
-            scales: {
-                y: { 
-                    beginAtZero: true, 
-                    grid: { color: "hsl(0, 0%, 24%)" },
-                    ticks: { color: "#fff" } 
-                },
-                x: {
-                    grid: { display: false },
-                    ticks: { font: { size: 9 }, maxRotation: 45, minRotation: 45, color: "#fff"  }
-                }
-            },
-            plugins: { legend: { display: false } },
-        }
-    });
-}
-
-function updateChartVisibility(view) {
-  const budgetChart = document.getElementById('budgetContainer');
-  const countChart = document.getElementById('countContainer');
-
-  if (!budgetChart || !countChart) return;
-
-  if (view === 'both') {
-    budgetChart.style.display = 'flex';
-    countChart.style.display = 'flex';
-  } else if (view === 'budget') {
-    budgetChart.style.display = 'flex';
-    countChart.style.display = 'none';
-  } else if (view === 'count') {
-    budgetChart.style.display = 'none';
-    countChart.style.display = 'flex';
-  }
-}

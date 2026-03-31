@@ -1,3 +1,4 @@
+/* TODO: dont use px for sizes */
 .regional-stats-panel{
   max-height: 50vh;
   max-width: 50vw;
@@ -122,4 +123,93 @@
 .chart-card canvas {
   width: 100% !important;
   height: 100% !important;
+}
+
+/* Dropdown===== */
+
+.dropdown {
+    display: none;
+    position: absolute;
+    border-radius: 8px;
+    top: 100%;
+    left: 0;
+    z-index: 1000;
+    box-shadow: inset 0 0 0 1px rgba(255,255,255,0.03),
+              0 6px 18px rgba(0,0,0,0.4);
+    background: var(--background);
+    width: 100%;
+    max-height: 100px;
+    overflow-y: scroll;
+    padding: 5px;
+}
+
+.dropdown.show {
+  display: block;
+}
+.dropdown_item {
+    cursor: pointer;
+    box-sizing: border-box;
+    padding: 5px;
+    font-size: 0.8rem;
+    align-items: center; 
+}
+
+.dropdown_item:hover {
+    background: var(--background-primary-hover);
+    border-radius: 5px;
+}
+
+.dropdown_label {
+  border-radius: 10px;
+  cursor: pointer;
+  user-select: none;
+  background: var(--background);
+  width: 125px;
+  padding: 10px;
+  font-size: 13px;
+}
+
+.dropdown_label:hover {
+  background: var(--border);
+}
+
+.dropdown-container {
+  position: relative;
+  display: flex;
+  align-content: center;
+}
+
+.custom-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.custom-checkbox input {
+  display: none;
+}
+
+.checkmark {
+  width: 12px;
+  height: 12px;
+  border: 1px solid var(--text);
+  border-radius: 50%;
+  display: inline-block;
+  flex-shrink: 0;
+  transition: background-color 0.1s ease, border-color 0.1s ease;
+}
+
+/* TODO: pick better greens */
+.custom-checkbox input:checked + .checkmark {
+  background-color: var(--background-primary);
+  border-color: var(--background-primary);
+}
+
+.custom-checkbox input:checked ~ .label-text {
+  color: var(--background-primary);
+}
+
+.label-text{
+  font-size: 13px;
+  font-weight: 400;
 }
