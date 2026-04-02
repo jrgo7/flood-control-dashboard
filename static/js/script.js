@@ -228,6 +228,32 @@ const setupSortDropdown = () => {
   });
 };
 
+const toggleBtn = document.getElementById("toggleBtn");
+const listPanel = document.getElementById("flood-control-projects");
+const controls = document.querySelector(".list-controls");
+
+listPanel.style.display = "none";
+controls.style.display = "none";
+
+toggleBtn.addEventListener("click", () => {
+    const isHidden = listPanel.style.display === "none";
+
+    if (isHidden) {
+        listPanel.style.display = "flex";
+        controls.style.display = "flex";
+        toggleBtn.classList.add("active");
+    } else {
+        listPanel.style.display = "none";
+        controls.style.display = "none";
+        toggleBtn.classList.remove("active");
+    }
+
+    if (map) {
+        map.invalidateSize();
+    }
+    
+});
+
 document.addEventListener("DOMContentLoaded", () => {
   //print(geojsonData)
 
