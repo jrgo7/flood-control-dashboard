@@ -228,30 +228,59 @@ const setupSortDropdown = () => {
   });
 };
 
-const toggleBtn = document.getElementById("toggleBtn");
+const toggleBtns = document.getElementsByClassName("toggle-btn");
 const listPanel = document.getElementById("flood-control-projects");
 const controls = document.querySelector(".list-controls");
+
+let activeType = null; // "projects" | "cities" | null
 
 listPanel.style.display = "none";
 controls.style.display = "none";
 
-toggleBtn.addEventListener("click", () => {
-    const isHidden = listPanel.style.display === "none";
 
-    if (isHidden) {
-        listPanel.style.display = "flex";
-        controls.style.display = "flex";
-        toggleBtn.classList.add("active");
-    } else {
-        listPanel.style.display = "none";
-        controls.style.display = "none";
-        toggleBtn.classList.remove("active");
-    }
+const clearProjectList = () => {
+  const floodControlProjects = document.querySelector("#flood-control-projects-list");
+  floodControlProjects.innerHTML = "";
+};
 
-    if (map) {
-        map.invalidateSize();
-    }
-    
+const populateProjects = () => {
+  clearProjectList();
+
+  projectData.forEach((proj) => {
+    listProject(proj, map);
+  });
+};
+
+/* TODO: answer this pls */
+const populateCities = () => {
+  clearProjectList();
+  console.log("Are we actually doing cities, or regions, or provinces?");
+}
+
+Array.from(toggleBtns).forEach((btn) => {
+    btn.addEventListener("click", () => {
+        const type = btn.dataset.type;
+        Array.from(toggleBtns).forEach(b => b.classList.remove("active"));
+
+        if (activeType === type) {
+            activeType = null;
+            listPanel.style.display = "none";
+            controls.style.display = "none";
+        } else {
+            activeType = type;
+            btn.classList.add("active");
+            listPanel.style.display = "flex";
+            controls.style.display = "flex";
+            if (type === "projects") {
+                populateProjects();
+            } else if (type === "cities") {
+                populateCities();
+            }
+        }
+        if (map) {
+            map.invalidateSize();
+        }
+    });
 });
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -274,7 +303,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
   projectData.forEach((proj) => {
     markProjectToMap(proj, map);
-    listProject(proj, map);
   });
 
   budgetChartInstance = createBarChart("budgetChart", regions, avgBudget, "Avg Budget", "hsl(120, 40%, 32%)");
