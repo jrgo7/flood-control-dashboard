@@ -58,6 +58,7 @@ const setupViewButtons = () => {
 
 const toggleDropdown = (label, dropdown) => {
   label.addEventListener("click", () => {
+    label.classList.toggle("rotate");
     dropdown.classList.toggle("show");
   });
 };
@@ -74,7 +75,7 @@ const closeDropdownsOnOutsideClick = () => {
 const populateRegionDropdown = (regions, dropdown) => {
   regions.forEach(region => {
     const item = document.createElement("li");
-    item.className = "dropdown_item has-checkbox region-checkbox";
+    item.className = "dropdown-item has-checkbox region-checkbox";
 
     item.innerHTML = `
       <label class="custom-checkbox">
@@ -212,7 +213,7 @@ const setupRegionFilter = () => {
 };
 
 const setupSortDropdown = () => {
-  const sortItems = document.querySelectorAll('#sortDropdown .dropdown_item');
+  const sortItems = document.querySelectorAll('#sortDropdown .dropdown-item');
   const sortLabel = document.getElementById('sortDropdownLabel');
 
   sortItems.forEach(item => {
