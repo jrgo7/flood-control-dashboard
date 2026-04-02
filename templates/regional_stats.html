@@ -1,51 +1,50 @@
-<section class="regional-stats-panel">
-  <div class="header-row">
-    <h2>Regional Statistics</h2>
-    
-    <div class="regional-charts-controls">
-      <div class="dropdown-container">
-        <div class="dropdown-label" id="regionDropdownLabel">
-          Select Region
-        </div>
 
-        <ul class="dropdown" id="regionDropdown">
-          <li class="dropdown-item clear-item" value="clear"><i>Clear</i></li>
-        </ul>
-      </div> 
-
-      <div class="dropdown-container">
-        <div class="dropdown-label" id="sortDropdownLabel">
-          Sort by
-        </div>
-
-        <ul class="dropdown" id="sortDropdown">
-          <li class="dropdown-item clear-item" value="default"><i>Default</i></li>
-          <li class="dropdown-item" value="highest_budget">Highest Budget</li>
-          <li class="dropdown-item" value="lowest_budget">Lowest Budget</li>
-          <li class="dropdown-item" value="highest_count">Highest Project Count</li>
-          <li class="dropdown-item" value="lowest_count">Lowest Project Count</li>
-        </ul>
+<div class="header-row">
+  <h2>Regional Statistics</h2>
+  
+  <div class="regional-charts-controls">
+    <div class="dropdown-container">
+      <div class="dropdown-label" id="regionDropdownLabel">
+        Select Region
       </div>
 
-      <!-- View Toggle -->
-      <div class="toggle-group" id="viewToggle">
-        <button data-view="both" class="active">Both</button>
-        <button data-view="budget">Budget</button>
-        <button data-view="count">Projects</button>
+      <ul class="dropdown" id="regionDropdown">
+        <li class="dropdown-item clear-item" value="clear"><i>Clear</i></li>
+      </ul>
+    </div> 
+
+    <div class="dropdown-container">
+      <div class="dropdown-label" id="sortDropdownLabel">
+        Sort by
       </div>
+
+      <ul class="dropdown" id="sortDropdown">
+        <li class="dropdown-item clear-item" value="default"><i>Default</i></li>
+        <li class="dropdown-item" value="highest_budget">Highest Budget</li>
+        <li class="dropdown-item" value="lowest_budget">Lowest Budget</li>
+        <li class="dropdown-item" value="highest_count">Highest Project Count</li>
+        <li class="dropdown-item" value="lowest_count">Lowest Project Count</li>
+      </ul>
+    </div>
+
+    <!-- View Toggle -->
+    <div class="toggle-group" id="viewToggle">
+      <button data-view="both" class="active">Both</button>
+      <button data-view="budget">Budget</button>
+      <button data-view="count">Projects</button>
     </div>
   </div>
+</div>
 
-  <!-- CHARTS -->
-  <div class="charts-grid">
-    <div class="chart-card" id="budgetContainer">
-      <h3>Budget Allocation</h3>
-      <canvas id="budgetChart"></canvas>
-    </div>
-
-    <div class="chart-card" id="countContainer">
-      <h3>Project Count</h3>
-      <canvas id="countChart"></canvas>
-    </div>
+<!-- CHARTS -->
+<div class="charts-grid">
+  <div class="chart-card" id="budgetContainer">
+    <h3>Budget Allocation</h3>
+    <canvas id="budgetChart"></canvas>
   </div>
-</section>
+
+  <div class="chart-card" id="countContainer">
+    <h3>Project Count</h3>
+    <canvas id="countChart"></canvas>
+  </div>
+</div>

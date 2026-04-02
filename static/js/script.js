@@ -58,7 +58,6 @@ const setupViewButtons = () => {
 
 const toggleDropdown = (label, dropdown) => {
   label.addEventListener("click", () => {
-    label.classList.toggle("rotate");
     dropdown.classList.toggle("show");
   });
 };
@@ -273,3 +272,5 @@ document.addEventListener("DOMContentLoaded", () => {
   setupSortDropdown();
 
 });
+
+// TODO: I guess, uhh create a dropdown class. to be used in Filter and sort in Region stats and List

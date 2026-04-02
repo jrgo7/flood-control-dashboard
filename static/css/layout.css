@@ -46,6 +46,7 @@ main {
 
 #right-column {
   flex: 45;
+  gap: inherit;
 }
 
 .column {

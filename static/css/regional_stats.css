@@ -1,8 +1,9 @@
-.regional-stats-panel{
-  max-height: 50vh;
-  max-width: 50vw;
+#regional-stats{
   display: flex;
   flex-direction: column;
+  flex: 40;
+  min-height: 0;
+  margin: 0;
   gap: 15px;
 }
 
@@ -80,7 +81,7 @@
   flex-direction: column;
   position: relative;
   flex: 1 1 0;
-  padding: 15px 15px 75px 15px;
+  padding: 15px 15px 50px 15px;
   box-sizing: border-box;
   border-radius: 10px;
   min-height: 0;
@@ -140,10 +141,6 @@
   color: inherit;
   opacity: 0.6;
   transition: transform 0.2s ease;
-}
-
-.dropdown-label.rotate::after {
-  transform: rotate(180deg);
 }
 
 .dropdown {
