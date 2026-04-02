@@ -4,11 +4,14 @@
     background-color: #1a3317 !important; /* Your dark green */
 }
 
-#map {
-  height: 40vh;
-}
-
 .leaflet-popup-content-wrapper, .leaflet-popup-tip {
   background-color: var(--background-front) !important;
   border: 1px solid var(--border);
+}
+
+.map {
+  flex: 60;
+  width: 100%;
+  border-radius: calc(16px - 1em);
+  z-index: 1;
 }

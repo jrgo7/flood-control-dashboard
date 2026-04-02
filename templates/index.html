@@ -1,16 +1,27 @@
 {% extends "base.html" %} {% block content %}
 
-<div id="left-panels" class="panel-group">
-  <div id="map" class="panel">{% include 'map.html' %}</div>
-  <div id="flood-control-projects" class="panel">
-    {% include 'flood_control_projects.html' %}
+<section id="left-column" class="column">
+
+  <div class="panel map-list-panel">
+
+    <div id="map" class="map"></div>
+
+    <div class="list-controls">
+      <div class="search-bar">Search Bar</div>
+      <div class="filter">Filter</div>
+    </div>
+
+    <div id="flood-control-projects" class="panel list-panel">
+      <ol id="flood-control-projects-list"></ol>
+    </div>   
   </div>
-</div>
-<div id="left-panels" class="panel-group">
+</section>
+
+<section id="right-column" class="column">
   <div id="city-stats" class="panel">{% include 'city_stats.html' %}</div>
   <div id="regional-stats" class="panel">
     {% include 'regional_stats.html' %}
   </div>
-</div>
+</section>
 
 {% endblock %}
