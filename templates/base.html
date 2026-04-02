@@ -33,14 +33,7 @@
       defer
       src="{{ url_for('static', filename='js/script.js') }}"
     ></script>
-
-    <script>
-        const projectData = {{ projects | tojson | safe }};
-        const regions = {{ region_names | tojson | safe }};
-        const avgBudget = {{ avg_budget | tojson  | safe}};
-        const projectCount = {{ project_count | tojson | safe }};
-    </script>
-
+    
     <link
       rel="stylesheet"
       href="{{ url_for('static', filename='css/style.css') }}"

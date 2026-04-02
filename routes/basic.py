@@ -1,59 +1,139 @@
 import geopandas as gpd
 import pandas as pd
-from flask import Blueprint, render_template
+from flask import Blueprint, render_template, jsonify, request
+from functools import lru_cache
 
 routes = Blueprint("basic", __name__, template_folder="templates")
 
-# TODO: Question, is it better to precompute this data?
-@routes.get("/")
-def get_index():
+@lru_cache(maxsize=1)
+def load_base_data():
     df = pd.read_csv("data/dpwh_flood_control_projects.csv")
     df = df.dropna(subset=["ProjectLatitude", "ProjectLongitude"])
-
-    # Preprocess
-    # df = df[df["Province"] == "Cavite"]
     df["ProjectName"] = df["ProjectName"].str.removeprefix("Construction of ")
 
-    # GeoPandas
     gdf_projects = gpd.GeoDataFrame(
         df,
         geometry=gpd.points_from_xy(df.ProjectLongitude, df.ProjectLatitude),
         crs="EPSG:4326",
     )
 
-    # Load shapefile, which has data on flood risk etc.
-    # TODO: Do we just use 5 years?
     gdf_flood = gpd.read_file("data/shapefiles/Cavite_Flood_5year.shp")
-
-    # Perform an intersection of the shapefile and the projects' coordinates
     joined = gpd.sjoin(gdf_projects, gdf_flood, how="left", predicate="intersects")
 
     joined["RiskLevel"] = joined["Var"].fillna(0)
-    joined["ApprovedBudgetForContract"] = pd.to_numeric(joined["ApprovedBudgetForContract"], errors="coerce")
-    regional_stats = joined.groupby("Region").agg(
-        avg_budget=("ApprovedBudgetForContract", "mean"),
-        project_count=("ProjectName", "count")
-    ).reset_index()
+    joined["ApprovedBudgetForContract"] = pd.to_numeric(
+        joined["ApprovedBudgetForContract"], errors="coerce"
+    ).fillna(0)
+    joined["Region"] = joined["Region"].fillna("Unknown")
+    
+    return joined
 
-    project_list = joined[
+@routes.get("/")
+def get_index():
+    return render_template("index.html")
+
+@routes.get("/api/projects")
+def get_projects():
+    df = load_base_data()
+    
+    regions_param = request.args.get("regions")
+    if regions_param:
+        selected_regions = regions_param.split(",")
+        df = df[df["Region"].isin(selected_regions)]
+
+    projects = df[
         [
+            "ProjectId",
             "ProjectName",
             "ProjectLatitude",
             "ProjectLongitude",
             "RiskLevel",
             "ApprovedBudgetForContract",
+            "Region"
         ]
     ].to_dict(orient="records")
-    region_names = regional_stats["Region"].fillna("Unknown").tolist()
-    avg_budget = regional_stats["avg_budget"].fillna(0).tolist()
-    project_count = regional_stats["project_count"].tolist()
 
-    # TODO: Unsure if this is the best way to pass data to the HTML side 
-    # im gonna make it worse
-    return render_template(
-        "index.html",
-        projects=project_list,
-        region_names=region_names,
-        avg_budget=avg_budget,
-        project_count=project_count,
+    return jsonify(projects)
+
+@routes.get("/api/regions")
+def get_regions():
+    df = load_base_data()
+    
+    regions_param = request.args.get("regions")
+    sort_param = request.args.get("sort", "default")
+    
+    if regions_param:
+        selected_regions = regions_param.split(",")
+        df = df[df["Region"].isin(selected_regions)]
+
+    regional_stats = (
+        df.groupby("Region")
+        .agg(
+            avg_budget=("ApprovedBudgetForContract", "mean"),
+            project_count=("ProjectName", "count"),
+        )
+        .reset_index()
     )
+
+    if sort_param == "highest_budget":
+        regional_stats = regional_stats.sort_values("avg_budget", ascending=False)
+    elif sort_param == "lowest_budget":
+        regional_stats = regional_stats.sort_values("avg_budget", ascending=True)
+    elif sort_param == "highest_count":
+        regional_stats = regional_stats.sort_values("project_count", ascending=False)
+    elif sort_param == "lowest_count":
+        regional_stats = regional_stats.sort_values("project_count", ascending=True)
+
+    return jsonify({
+        "names": regional_stats["Region"].tolist(),
+        "avg_budget": regional_stats["avg_budget"].tolist(),
+        "project_count": regional_stats["project_count"].tolist(),
+    })
+
+@routes.get("/api/projects/names")
+def get_project_names():
+    df = load_base_data()
+    
+    regions_param = request.args.get("regions")
+    if regions_param:
+        selected_regions = regions_param.split(",")
+        df = df[df["Region"].isin(selected_regions)]
+
+    names = df[["ProjectId", "ProjectName"]].dropna().to_dict(orient="records")
+    return jsonify(names)
+
+@routes.get("/api/city")
+def get_city():
+    print("City")
+
+@routes.get("/api/city/names")
+def get_city_names():
+    print("City Name")
+
+@routes.get("/api/projects/<string:project_id>")
+def get_project_detail(project_id):
+    df = load_base_data()
+    
+    project_df = df[df["ProjectId"] == project_id]
+
+    if project_df.empty:
+        return jsonify({"error": "Project not found"}), 404
+
+    project_data = project_df[
+        [
+            "ProjectId",
+            "ProjectName",
+            "ProjectLatitude",
+            "ProjectLongitude",
+            "RiskLevel",
+            "ApprovedBudgetForContract",
+            "Region"
+        ]
+    ].iloc[0].to_dict() 
+
+    return jsonify(project_data)
+
+@routes.get("/api/refresh")
+def refresh():
+    load_base_data.cache_clear()
+    return jsonify({"status": "cache cleared"})

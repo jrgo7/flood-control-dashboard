@@ -1,17 +1,89 @@
+let map;
+let budgetChartInstance = null;
+let countChartInstance = null;
+const markers = new Map();
+
+let globalProjects = [];
+let activeRegions = new Set();
+let currentSort = 'default';
+
 const getRiskColor = (level) => {
-  // TODO: Better colors
   const colors = {
     3: "hsl(0, 100%, 50%)",
     2: "hsl(60, 100%, 50%)",
     1: "hsl(120, 100%, 50%)",
   };
-
-  // Gray by default
   return colors[level] || "#808080";
 };
 
-const markers = new Map();
+class Dropdown {
+  constructor(labelId, dropdownId) {
+    this.label = document.getElementById(labelId);
+    this.dropdown = document.getElementById(dropdownId);
+    
+    this.initListeners();
+  }
 
+  initListeners() {
+    this.label.addEventListener("click", (e) => {
+      e.stopPropagation();
+      this.dropdown.classList.toggle("show");
+    });
+
+    document.addEventListener("click", (e) => {
+      if (!e.target.closest(".dropdown-container")) {
+        this.dropdown.classList.remove("show");
+      }
+    });
+  }
+
+  populateCheckboxes(items, onChangeCallback) {
+    this.dropdown.innerHTML = ""; 
+    
+    const clearItem = document.createElement("li");
+    clearItem.className = "dropdown-item clear-item";
+    clearItem.innerHTML = `<i>Clear Filters</i>`;
+    clearItem.addEventListener("click", () => {
+      this.dropdown.querySelectorAll("input").forEach(cb => cb.checked = false);
+      onChangeCallback("clear", null);
+      this.dropdown.classList.remove("show");
+    });
+    this.dropdown.appendChild(clearItem);
+
+    items.forEach(item => {
+      const li = document.createElement("li");
+      li.className = "dropdown-item has-checkbox region-checkbox";
+      li.innerHTML = `
+        <label class="custom-checkbox">
+          <input type="checkbox" value="${item}">
+          <span class="checkmark"></span>
+          <span class="label-text">${item}</span>
+        </label>
+      `;
+      
+      const checkbox = li.querySelector('input');
+      checkbox.addEventListener('change', (e) => {
+        onChangeCallback(e.target.value, e.target.checked);
+      });
+      
+      this.dropdown.appendChild(li);
+    });
+  }
+
+  hookUpSortItems(onSortCallback) {
+    const items = this.dropdown.querySelectorAll('.dropdown-item');
+    items.forEach(item => {
+      item.addEventListener('click', () => {
+        const value = item.getAttribute('value');
+        this.label.innerText = item.innerText;
+        this.dropdown.classList.remove('show');
+        onSortCallback(value);
+      });
+    });
+  }
+}
+
+/* I did not touch this yet*/
 const markProjectToMap = (proj, map) => {
   const color = getRiskColor(proj.RiskLevel);
   const coordinates = [proj.ProjectLatitude, proj.ProjectLongitude];
@@ -22,31 +94,71 @@ const markProjectToMap = (proj, map) => {
     weight: 1,
     fillOpacity: 0.8,
   };
+  
   const popupHTML =
     `<strong>${proj.ProjectName}</strong><br>` +
     `Budget: ₱${proj.ApprovedBudgetForContract.toLocaleString()}<br>` +
-    `Flood risk: ${proj.RiskLevel}`;
+    `Flood risk: ${proj.RiskLevel}<br>` +
+    `Region: ${proj.Region}`;
+    
   const marker = L.circleMarker(coordinates, style);
   marker.addTo(map);
   marker.bindPopup(popupHTML);
-  markers.set(proj.ProjectName, marker);
+  markers.set(proj.ProjectId, marker);
 };
 
-const listProject = (proj, map) => {
-  floodControlProjects = document.querySelector("#flood-control-projects-list");
-  projectListing = document.createElement("li");
-  projectListing.innerText = proj.ProjectName;
-  projectListing.onclick = () => {
-    map.flyTo([proj.ProjectLatitude, proj.ProjectLongitude], 18);
-    markers.get(proj.ProjectName).openPopup();
+const listProject = (projectId, projectName, map) => {
+  const floodControlProjects = document.querySelector("#flood-control-projects-list");
+  const projectListing = document.createElement("li");
+  projectListing.innerText = projectName;
+  projectListing.dataset.projectId = projectId;
+  
+  projectListing.onclick = async () => {
+    const response = await fetch(`/api/projects/${projectId}`);
+    
+    if (response.ok) {
+      const projData = await response.json();
+      map.flyTo([projData.ProjectLatitude, projData.ProjectLongitude], 18);
+      markers.get(projectId).openPopup();
+      /** TODO CITY STATS HANDLING */
+    }
   };
   floodControlProjects.appendChild(projectListing);
 };
 
+const clearProjectList = () => {
+  document.querySelector("#flood-control-projects-list").innerHTML = "";
+};
+
+const populateProjectsList = async () => {
+  clearProjectList();
+  
+  const response = await fetch(`/api/projects/names`);
+  const projects = await response.json();
+
+  projects.forEach((proj) => {
+    listProject(proj.ProjectId, proj.ProjectName, map);
+  });
+};
+
+const populateCities = () => {
+  clearProjectList();
+
+  /* TODO: City stats handling*/
+}
+
+const updateChartVisibility = (view) => {
+  const budget = document.getElementById('budgetContainer');
+  const count = document.getElementById('countContainer');
+
+  if (!budget || !count) return;
+
+  budget.style.display = (view === 'both' || view === 'budget') ? 'flex' : 'none';
+  count.style.display = (view === 'both' || view === 'count') ? 'flex' : 'none';
+};
 
 const setupViewButtons = () => {
   const buttons = document.querySelectorAll('#viewToggle button');
-
   buttons.forEach(button => {
     button.addEventListener('click', function () {
       buttons.forEach(btn => btn.classList.remove('active'));
@@ -55,52 +167,6 @@ const setupViewButtons = () => {
     });
   });
 };
-
-const toggleDropdown = (label, dropdown) => {
-  label.addEventListener("click", () => {
-    dropdown.classList.toggle("show");
-  });
-};
-
-const closeDropdownsOnOutsideClick = () => {
-  document.addEventListener("click", (e) => {
-    if (!e.target.closest(".dropdown-container")) {
-      document.querySelectorAll(".dropdown")
-        .forEach(d => d.classList.remove("show"));
-    }
-  });
-};
-
-const populateRegionDropdown = (regions, dropdown) => {
-  regions.forEach(region => {
-    const item = document.createElement("li");
-    item.className = "dropdown-item has-checkbox region-checkbox";
-
-    item.innerHTML = `
-      <label class="custom-checkbox">
-        <input type="checkbox" value="${region}">
-        <span class="checkmark"></span>
-        <span class="label-text">${region}</span>
-      </label>
-    `;
-
-    dropdown.appendChild(item);
-  });
-};
-
-const updateChartVisibility = (view) => {
-  const budget = document.getElementById('budgetContainer');
-  const count = document.getElementById('countContainer');
-
-  if (!budget || !count) return;
-
-  budget.style.display =
-    (view === 'both' || view === 'budget') ? 'flex' : 'none';
-
-  count.style.display =
-    (view === 'both' || view === 'count') ? 'flex' : 'none';
-};
-
 
 const createBarChart = (canvasId, labels, data, labelText, barColor) => {
   return new Chart(document.getElementById(canvasId), {
@@ -119,143 +185,53 @@ const createBarChart = (canvasId, labels, data, labelText, barColor) => {
       responsive: true,
       maintainAspectRatio: false,
       scales: {
-        y: { 
-          beginAtZero: true, 
-          grid: { color: "hsl(0, 0%, 24%)" },
-          ticks: { color: "#fff" } 
-        },
-        x: {
-          grid: { display: false },
-          ticks: { 
-            font: { size: 9 },
-            maxRotation: 45,
-            minRotation: 45,
-            color: "#fff"
-          }
-        }
+        y: { beginAtZero: true, grid: { color: "hsl(0, 0%, 24%)" }, ticks: { color: "#fff" } },
+        x: { grid: { display: false }, ticks: { font: { size: 9 }, maxRotation: 45, minRotation: 45, color: "#fff" } }
       },
       plugins: { legend: { display: false } },
     }
   });
 };
 
-/* CHart wiring */
-let map;
-let budgetChartInstance = null;
-let countChartInstance = null;
-
-let activeRegions = new Set();
-let currentSort = 'default';
-
-const updateCharts = () => {
-  let data = regions.map((r, i) => ({
-    region: r,
-    budget: avgBudget[i],
-    count: projectCount[i]
-  }));
-
-  if (activeRegions.size > 0) {
-    data = data.filter(d => activeRegions.has(d.region));
-  }
-
-  if (currentSort === 'highest_budget') {
-    data.sort((a, b) => b.budget - a.budget);
-  } else if (currentSort === 'lowest_budget') {
-    data.sort((a, b) => a.budget - b.budget);
-  } else if (currentSort === 'highest_count') {
-    data.sort((a, b) => b.count - a.count);
-  } else if (currentSort === 'lowest_count') {
-    data.sort((a, b) => a.count - b.count);
-  }
-
-  const newLabels = data.map(d => d.region);
-  const newBudgets = data.map(d => d.budget);
-  const newCounts = data.map(d => d.count);
-
-  if (budgetChartInstance) {
-    budgetChartInstance.data.labels = newLabels;
-    budgetChartInstance.data.datasets[0].data = newBudgets;
-    budgetChartInstance.update();
-  }
-
-  if (countChartInstance) {
-    countChartInstance.data.labels = newLabels;
-    countChartInstance.data.datasets[0].data = newCounts;
-    countChartInstance.update();
-  }
-};
-
-const setupRegionFilter = () => {
-  const checkboxes = document.querySelectorAll('.region-checkbox input[type="checkbox"]');
-  const clearBtn = document.querySelector('li[value="clear"]');
-
-  checkboxes.forEach(cb => {
-    cb.addEventListener('change', (e) => {
-      if (e.target.checked) {
-        activeRegions.add(e.target.value);
-      } else {
-        activeRegions.delete(e.target.value);
-      }
-      updateCharts();
-    });
-  });
-
-  if (clearBtn) {
-    clearBtn.addEventListener('click', () => {
-      activeRegions.clear();
-      checkboxes.forEach(c => c.checked = false);
-      document.getElementById('regionDropdown').classList.remove('show');
-      updateCharts();
-    });
+const fetchAndUpdateCharts = async () => {
+  const params = new URLSearchParams();
+  
+  if (currentSort !== 'default') {
+    params.append('sort', currentSort);
   }
   
-};
+  if (activeRegions.size > 0) {
+    params.append('regions', Array.from(activeRegions).join(','));
+  }
 
-const setupSortDropdown = () => {
-  const sortItems = document.querySelectorAll('#sortDropdown .dropdown-item');
-  const sortLabel = document.getElementById('sortDropdownLabel');
+  try {
+    const res = await fetch(`/api/regions?${params.toString()}`);
+    const data = await res.json();
 
-  sortItems.forEach(item => {
-    item.addEventListener('click', (e) => {
-      currentSort = item.getAttribute('value');
-      
-      sortLabel.innerText = item.innerText; 
+    if (budgetChartInstance) {
+      budgetChartInstance.data.labels = data.names;
+      budgetChartInstance.data.datasets[0].data = data.avg_budget;
+      budgetChartInstance.update();
+    }
 
-      document.getElementById('sortDropdown').classList.remove('show');
-      
-      updateCharts();
-    });
-  });
+    if (countChartInstance) {
+      countChartInstance.data.labels = data.names;
+      countChartInstance.data.datasets[0].data = data.project_count;
+      countChartInstance.update();
+    }
+    
+  } catch (err) {
+    console.error(err);
+  }
 };
 
 const toggleBtns = document.getElementsByClassName("toggle-btn");
 const listPanel = document.getElementById("flood-control-projects");
 const controls = document.querySelector(".list-controls");
 
-let activeType = null; // "projects" | "cities" | null
-
+let activeType = null;
 listPanel.style.display = "none";
 controls.style.display = "none";
-
-
-const clearProjectList = () => {
-  const floodControlProjects = document.querySelector("#flood-control-projects-list");
-  floodControlProjects.innerHTML = "";
-};
-
-const populateProjects = () => {
-  clearProjectList();
-
-  projectData.forEach((proj) => {
-    listProject(proj, map);
-  });
-};
-
-/* TODO: answer this pls */
-const populateCities = () => {
-  clearProjectList();
-  console.log("Are we actually doing cities, or regions, or provinces?");
-}
 
 Array.from(toggleBtns).forEach((btn) => {
     btn.addEventListener("click", () => {
@@ -272,59 +248,52 @@ Array.from(toggleBtns).forEach((btn) => {
             listPanel.style.display = "flex";
             controls.style.display = "flex";
             if (type === "projects") {
-                populateProjects();
+                populateProjectsList();
             } else if (type === "cities") {
                 populateCities();
             }
         }
-        if (map) {
-            map.invalidateSize();
-        }
+        if (map) map.invalidateSize();
     });
 });
 
-document.addEventListener("DOMContentLoaded", () => {
-  //print(geojsonData)
+document.addEventListener("DOMContentLoaded", async () => {
+  const [projectsRes, regionsRes] = await Promise.all([
+    fetch("/api/projects"),
+    fetch("/api/regions")
+  ]);
+  
+  globalProjects = await projectsRes.json();
+  const initialRegionData = await regionsRes.json();
 
-  // [longitude, latitude], zoom level
-  // viewPhilippines = [[12.8797, 121.7740], 6];
-  viewCavite = [[14.3456, 120.9365], 11];
-
+  const viewCavite = [[14.3456, 120.9365], 11];
   map = L.map("map").setView(...viewCavite);
 
-  L.tileLayer(
-    "https://tiles.stadiamaps.com/tiles/stamen_terrain/{z}/{x}/{y}{r}.png",
-    {
-      attribution:
-        "© Stadia Maps, © Stamen Design, © OpenStreetMap contributors",
+  L.tileLayer("https://tiles.stadiamaps.com/tiles/stamen_terrain/{z}/{x}/{y}{r}.png", {
+      attribution: "© Stadia Maps, © Stamen Design, © OpenStreetMap contributors",
       maxZoom: 18,
-    },
-  ).addTo(map);
+  }).addTo(map);
 
-  projectData.forEach((proj) => {
-    markProjectToMap(proj, map);
-  });
+  globalProjects.forEach((proj) => markProjectToMap(proj, map));
 
-  budgetChartInstance = createBarChart("budgetChart", regions, avgBudget, "Avg Budget", "hsl(120, 40%, 32%)");
-  countChartInstance = createBarChart("countChart", regions, projectCount, "Projects", "hsl(120, 40%, 32%)");
-
+  budgetChartInstance = createBarChart("budgetChart", initialRegionData.names, initialRegionData.avg_budget, "Avg Budget", "hsl(120, 40%, 32%)");
+  countChartInstance = createBarChart("countChart", initialRegionData.names, initialRegionData.project_count, "Projects", "hsl(120, 40%, 32%)");
   setupViewButtons();
 
-  const regionDropdown = document.getElementById("regionDropdown");
-  const regionLabel = document.getElementById("regionDropdownLabel");
+  const regionDropdown = new Dropdown("regionDropdownLabel", "regionDropdown");
+  const sortDropdown = new Dropdown("sortDropdownLabel", "sortDropdown");
 
-  const sortDropdown = document.getElementById("sortDropdown");
-  const sortLabel = document.getElementById("sortDropdownLabel");
+  regionDropdown.populateCheckboxes(initialRegionData.names, (val, isChecked) => {
+    if (val === "clear") {
+      activeRegions.clear();
+    } else {
+      isChecked ? activeRegions.add(val) : activeRegions.delete(val);
+    }
+    fetchAndUpdateCharts();
+  });
 
-  populateRegionDropdown(regions, regionDropdown);
-
-  toggleDropdown(regionLabel, regionDropdown);
-  toggleDropdown(sortLabel, sortDropdown);
-  closeDropdownsOnOutsideClick();
-
-  setupRegionFilter();
-  setupSortDropdown();
-
+  sortDropdown.hookUpSortItems((sortValue) => {
+    currentSort = sortValue;
+    fetchAndUpdateCharts();
+  });
 });
-
-// TODO: I guess, uhh create a dropdown class. to be used in Filter and sort in Region stats and List
