@@ -1,0 +1,144 @@
+#project-stats {
+    display: flex;
+    flex-direction: column;
+    flex: 35;
+}
+
+.project-stats-header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 20px;
+}
+
+.project-id-risk-indicator {
+    color: #111827;
+    padding: 6px 16px;
+    border-radius: 9999px;
+    font-size: 0.875rem;
+    font-weight: 700;
+}
+
+.risk-level-low{
+    background-color: #FCD34D
+}
+
+.risk-level-medium{
+    background-color: #ff9b05
+}
+
+.risk-level-high{
+    background-color: #da381b
+}
+
+.project-name {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #ffffff;
+}
+
+.panel-columns-wrapper {
+    display: flex;
+    gap: 20px;
+    flex: 1;
+}
+
+#project-stats-left,
+#project-stats-right {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+#project-stats-left{
+    flex: 62;
+}
+
+#project-stats-right{
+    flex: 38;
+}
+
+.card-title { 
+    font-weight: 600; 
+     margin-bottom: 12px; 
+}
+
+.card-value { 
+    font-size: 1.125rem; 
+    text-align: right; 
+}
+
+.card {
+    background-color: var(--background);
+    border-radius: 12px;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+}
+
+.inner-box {
+    background-color: var(--border);
+    border-radius: 8px;
+    padding: 16px;
+    display: flex;
+    flex: 1;
+}
+
+.inner-box.contractor-list{
+    list-style-type: none;
+    overflow-y: auto;
+    overflow-x: hidden;
+    max-height: inherit;
+    padding: 8px;
+    margin: 0;
+    gap: 10px;
+    display: flex;
+    flex-direction: column;
+}
+
+.inner-box.contractor-list > li{
+  background-color: var(--background-primary);
+  border-radius: 16px;
+  padding: 5px;
+  font-size: 1rem;
+  user-select: none;
+  overflow-wrap: break-word; 
+  word-break: break-word;
+  transition: background-color 0.2s ease;
+}
+
+.inner-box.contractor-list > li:hover{
+  background-color: var(--background-primary-hover);
+}
+
+.dates-container{
+    display: flex;
+    flex: 1;
+    gap: 15px;
+}
+
+.project-status-header{
+    display: flex;
+    justify-content: space-between;
+}
+
+.date-box{
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+}
+
+.box-label { 
+    font-size: 0.875rem;
+    font-weight: 600; 
+}
+
+.box-value { 
+    font-size: 1.125rem;
+    text-align: right;
+}
+
+#project-contractor{
+    flex: 2;
+}
