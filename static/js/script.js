@@ -120,7 +120,7 @@ const listProject = (projectId, projectName, map) => {
       const projData = await response.json();
       map.flyTo([projData.ProjectLatitude, projData.ProjectLongitude], 18);
       markers.get(projectId).openPopup();
-      /** TODO CITY STATS HANDLING */
+      updateProjectStatsPanel(projData);
     }
   };
   floodControlProjects.appendChild(projectListing);
@@ -256,6 +256,53 @@ Array.from(toggleBtns).forEach((btn) => {
         if (map) map.invalidateSize();
     });
 });
+
+const updateProjectStatsPanel = (data) => {
+    const idIndicator = document.getElementById("project-id");
+    idIndicator.innerText = data.ProjectId || "N/A";
+    
+    idIndicator.className = "project-id-risk-indicator"; 
+    if (data.RiskLevel >= 3) idIndicator.classList.add("risk-level-high");
+    else if (data.RiskLevel === 2) idIndicator.classList.add("risk-level-medium");
+    else idIndicator.classList.add("risk-level-low");
+
+    document.getElementById("project-name").innerText = data.ProjectName || "Unknown Project";
+
+    const budgetVal = document.querySelector("#project-financials .date-box:nth-child(1) .box-value");
+    const fundingYearVal = document.querySelector("#project-financials .date-box:nth-child(2) .box-value");
+    
+    budgetVal.innerText = data.ApprovedBudgetForContract 
+        ? `₱${data.ApprovedBudgetForContract.toLocaleString()}` 
+        : "N/A";
+    fundingYearVal.innerText = data.FundingYear || "N/A";
+
+    const contractorList = document.querySelector(".contractor-list");
+    contractorList.innerHTML = ""; 
+    
+    const contractors = data.Contractor && data.Contractor !== "N/A" 
+        ? data.Contractor.split(",") 
+        : ["No contractors listed"];
+        
+    document.getElementById("contractor-count").innerText = `(${contractors.length})`;
+    
+    contractors.forEach(contractor => {
+        const li = document.createElement("li");
+        li.innerText = contractor.trim();
+        contractorList.appendChild(li);
+    });
+    const statusText = document.querySelector("#project-status .progress-text");
+    statusText.innerText = data.ProjectStatus || "UNKNOWN";
+    
+    document.querySelector("#start-date-box .box-value").innerText = data.StartDate || "N/A";
+    document.querySelector("#end-date-box .box-value").innerText = data.ActualCompletionDate || "N/A";
+    document.querySelector("#project-type .card-value").innerText = data.TypeOfWork || "N/A";
+
+    const lat = data.ProjectLatitude !== "N/A" ? parseFloat(data.ProjectLatitude).toFixed(5) : "N/A";
+    const lng = data.ProjectLongitude !== "N/A" ? parseFloat(data.ProjectLongitude).toFixed(5) : "N/A";
+    
+    document.querySelector("#project-location .card-value").innerText = `${lat}, ${lng}`;
+};
+
 
 document.addEventListener("DOMContentLoaded", async () => {
   const [projectsRes, regionsRes] = await Promise.all([

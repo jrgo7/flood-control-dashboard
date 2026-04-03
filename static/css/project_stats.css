@@ -51,7 +51,7 @@
 }
 
 #project-stats-left{
-    flex: 62;
+    flex: 55;
 }
 
 #project-stats-right{
@@ -127,6 +127,7 @@
     display: flex;
     flex: 1;
     flex-direction: column;
+    gap: 10px;
 }
 
 .box-label { 

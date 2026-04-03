@@ -110,6 +110,10 @@ def get_city():
 def get_city_names():
     print("City Name")
 
+@routes.get("/api/city/<string:city>")
+def get_city_names():
+    print("City Name")
+
 @routes.get("/api/projects/<string:project_id>")
 def get_project_detail(project_id):
     df = load_base_data()
@@ -119,17 +123,20 @@ def get_project_detail(project_id):
     if project_df.empty:
         return jsonify({"error": "Project not found"}), 404
 
-    project_data = project_df[
-        [
-            "ProjectId",
-            "ProjectName",
-            "ProjectLatitude",
-            "ProjectLongitude",
-            "RiskLevel",
-            "ApprovedBudgetForContract",
-            "Region"
-        ]
-    ].iloc[0].to_dict() 
+    columns_to_extract = [
+        "ProjectId", "ProjectName", "ProjectLatitude", "ProjectLongitude",
+        "RiskLevel", "ApprovedBudgetForContract", "Region",
+        "FundingYear", "Contractor", "ProjectStatus", 
+        "StartDate", "ActualCompletionDate", "TypeOfWork", "Location" 
+    ]
+    
+    available_cols = [col for col in columns_to_extract if col in project_df.columns]
+    
+    project_data = project_df[available_cols].iloc[0].to_dict() 
+
+    for key, value in project_data.items():
+        if pd.isna(value):
+            project_data[key] = "N/A"
 
     return jsonify(project_data)
 
