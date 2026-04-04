@@ -1,3 +1,5 @@
+import Dropdown from "./dropdown.js";
+
 let map;
 let budgetChartInstance = null;
 let countChartInstance = null;
@@ -16,74 +18,6 @@ const getRiskColor = (level) => {
   return colors[level] || "#808080";
 };
 
-class Dropdown {
-  constructor(labelId, dropdownId) {
-    this.label = document.getElementById(labelId);
-    this.dropdown = document.getElementById(dropdownId);
-    
-    this.initListeners();
-  }
-
-  initListeners() {
-    this.label.addEventListener("click", (e) => {
-      e.stopPropagation();
-      this.dropdown.classList.toggle("show");
-    });
-
-    document.addEventListener("click", (e) => {
-      if (!e.target.closest(".dropdown-container")) {
-        this.dropdown.classList.remove("show");
-      }
-    });
-  }
-
-  populateCheckboxes(items, onChangeCallback) {
-    this.dropdown.innerHTML = ""; 
-    
-    const clearItem = document.createElement("li");
-    clearItem.className = "dropdown-item clear-item";
-    clearItem.innerHTML = `<i>Clear Filters</i>`;
-    clearItem.addEventListener("click", () => {
-      this.dropdown.querySelectorAll("input").forEach(cb => cb.checked = false);
-      onChangeCallback("clear", null);
-      this.dropdown.classList.remove("show");
-    });
-    this.dropdown.appendChild(clearItem);
-
-    items.forEach(item => {
-      const li = document.createElement("li");
-      li.className = "dropdown-item has-checkbox region-checkbox";
-      li.innerHTML = `
-        <label class="custom-checkbox">
-          <input type="checkbox" value="${item}">
-          <span class="checkmark"></span>
-          <span class="label-text">${item}</span>
-        </label>
-      `;
-      
-      const checkbox = li.querySelector('input');
-      checkbox.addEventListener('change', (e) => {
-        onChangeCallback(e.target.value, e.target.checked);
-      });
-      
-      this.dropdown.appendChild(li);
-    });
-  }
-
-  hookUpSortItems(onSortCallback) {
-    const items = this.dropdown.querySelectorAll('.dropdown-item');
-    items.forEach(item => {
-      item.addEventListener('click', () => {
-        const value = item.getAttribute('value');
-        this.label.innerText = item.innerText;
-        this.dropdown.classList.remove('show');
-        onSortCallback(value);
-      });
-    });
-  }
-}
-
-/* I did not touch this yet*/
 const markProjectToMap = (proj, map) => {
   const color = getRiskColor(proj.RiskLevel);
   const coordinates = [proj.ProjectLatitude, proj.ProjectLongitude];
@@ -94,13 +28,13 @@ const markProjectToMap = (proj, map) => {
     weight: 1,
     fillOpacity: 0.8,
   };
-  
+
   const popupHTML =
     `<strong>${proj.ProjectName}</strong><br>` +
     `Budget: ₱${proj.ApprovedBudgetForContract.toLocaleString()}<br>` +
     `Flood risk: ${proj.RiskLevel}<br>` +
     `Region: ${proj.Region}`;
-    
+
   const marker = L.circleMarker(coordinates, style);
   marker.addTo(map);
   marker.bindPopup(popupHTML);
@@ -112,10 +46,10 @@ const listProject = (projectId, projectName, map) => {
   const projectListing = document.createElement("li");
   projectListing.innerText = projectName;
   projectListing.dataset.projectId = projectId;
-  
+
   projectListing.onclick = async () => {
     const response = await fetch(`/api/projects/${projectId}`);
-    
+
     if (response.ok) {
       const projData = await response.json();
       map.flyTo([projData.ProjectLatitude, projData.ProjectLongitude], 18);
@@ -132,7 +66,7 @@ const clearProjectList = () => {
 
 const populateProjectsList = async () => {
   clearProjectList();
-  
+
   const response = await fetch(`/api/projects/names`);
   const projects = await response.json();
 
@@ -195,11 +129,11 @@ const createBarChart = (canvasId, labels, data, labelText, barColor) => {
 
 const fetchAndUpdateCharts = async () => {
   const params = new URLSearchParams();
-  
+
   if (currentSort !== 'default') {
     params.append('sort', currentSort);
   }
-  
+
   if (activeRegions.size > 0) {
     params.append('regions', Array.from(activeRegions).join(','));
   }
@@ -219,7 +153,7 @@ const fetchAndUpdateCharts = async () => {
       countChartInstance.data.datasets[0].data = data.project_count;
       countChartInstance.update();
     }
-    
+
   } catch (err) {
     console.error(err);
   }
@@ -260,8 +194,8 @@ Array.from(toggleBtns).forEach((btn) => {
 const updateProjectStatsPanel = (data) => {
     const idIndicator = document.getElementById("project-id");
     idIndicator.innerText = data.ProjectId || "N/A";
-    
-    idIndicator.className = "project-id-risk-indicator"; 
+
+    idIndicator.className = "project-id-risk-indicator";
     if (data.RiskLevel >= 3) idIndicator.classList.add("risk-level-high");
     else if (data.RiskLevel === 2) idIndicator.classList.add("risk-level-medium");
     else idIndicator.classList.add("risk-level-low");
@@ -270,21 +204,21 @@ const updateProjectStatsPanel = (data) => {
 
     const budgetVal = document.querySelector("#project-financials .date-box:nth-child(1) .box-value");
     const fundingYearVal = document.querySelector("#project-financials .date-box:nth-child(2) .box-value");
-    
-    budgetVal.innerText = data.ApprovedBudgetForContract 
-        ? `₱${data.ApprovedBudgetForContract.toLocaleString()}` 
+
+    budgetVal.innerText = data.ApprovedBudgetForContract
+        ? `₱${data.ApprovedBudgetForContract.toLocaleString()}`
         : "N/A";
     fundingYearVal.innerText = data.FundingYear || "N/A";
 
     const contractorList = document.querySelector(".contractor-list");
-    contractorList.innerHTML = ""; 
-    
-    const contractors = data.Contractor && data.Contractor !== "N/A" 
-        ? data.Contractor.split(",") 
+    contractorList.innerHTML = "";
+
+    const contractors = data.Contractor && data.Contractor !== "N/A"
+        ? data.Contractor.split(",")
         : ["No contractors listed"];
-        
+
     document.getElementById("contractor-count").innerText = `(${contractors.length})`;
-    
+
     contractors.forEach(contractor => {
         const li = document.createElement("li");
         li.innerText = contractor.trim();
@@ -292,14 +226,14 @@ const updateProjectStatsPanel = (data) => {
     });
     const statusText = document.querySelector("#project-status .progress-text");
     statusText.innerText = data.ProjectStatus || "UNKNOWN";
-    
+
     document.querySelector("#start-date-box .box-value").innerText = data.StartDate || "N/A";
     document.querySelector("#end-date-box .box-value").innerText = data.ActualCompletionDate || "N/A";
     document.querySelector("#project-type .card-value").innerText = data.TypeOfWork || "N/A";
 
     const lat = data.ProjectLatitude !== "N/A" ? parseFloat(data.ProjectLatitude).toFixed(5) : "N/A";
     const lng = data.ProjectLongitude !== "N/A" ? parseFloat(data.ProjectLongitude).toFixed(5) : "N/A";
-    
+
     document.querySelector("#project-location .card-value").innerText = `${lat}, ${lng}`;
 };
 
@@ -309,7 +243,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     fetch("/api/projects"),
     fetch("/api/regions")
   ]);
-  
+
   globalProjects = await projectsRes.json();
   const initialRegionData = await regionsRes.json();
 
