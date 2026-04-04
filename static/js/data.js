@@ -1,4 +1,4 @@
-const getProjectRegionData = async () => {
+export const getProjectRegionData = async () => {
   const [projectData, regionData] = await Promise.all([
     getProjectData(),
     getRegionData(),
@@ -6,7 +6,7 @@ const getProjectRegionData = async () => {
   return { projectData, regionData };
 };
 
-const getProjectData = async () => {
+export const getProjectData = async () => {
   try {
     const res = await fetch("/api/projects");
     return await res.json();
@@ -16,7 +16,7 @@ const getProjectData = async () => {
   }
 };
 
-const getRegionData = async () => {
+export const getRegionData = async () => {
   try {
     const res = await fetch("/api/regions");
     return await res.json();

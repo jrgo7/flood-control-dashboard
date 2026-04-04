@@ -22,9 +22,9 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   initializeCharts(regionData);
   initializeToggleButtons(worldMap);
+
+  worldMap.invalidateSize();
 });
-
-
 
 // Projects
 
@@ -111,10 +111,28 @@ const initializeToggleButtons = (worldMap) => {
   listPanel.style.display = "none";
   controls.style.display = "none";
 
+  const toggleRiskLayer = (riskLevel, worldMap) => {
+    alert("TODO: Implement risk level filtering logic");
+    // markers.forEach((marker, projectId) => {
+    // const markerRiskLevel = "TODO";
+    // if (markerRiskLevel === riskLevel) {
+    //   if (!worldMap.hasLayer(marker)) marker.addTo(worldMap);
+    // } else {
+    //   if (worldMap.hasLayer(marker)) worldMap.removeLayer(marker);
+    // }
+    // });
+  };
+
   Array.from(toggleBtns).forEach((btn) => {
     btn.addEventListener("click", () => {
       const type = btn.dataset.type;
       Array.from(toggleBtns).forEach((b) => b.classList.remove("active"));
+
+      if (type === "risk1" || type === "risk2" || type === "risk3") {
+        const riskLevel = parseInt(type.slice(-1));
+        toggleRiskLayer(riskLevel, worldMap);
+        return;
+      }
 
       if (activeType === type) {
         activeType = null;
@@ -131,6 +149,7 @@ const initializeToggleButtons = (worldMap) => {
           populateCities();
         }
       }
+
       if (worldMap) worldMap.invalidateSize();
     });
   });

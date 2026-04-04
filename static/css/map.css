@@ -16,6 +16,8 @@
   z-index: 1;
 }
 
+/* TODO: Refactor... */
+
 .toggle-btn {
   position: absolute;
   top: 10px;
@@ -35,6 +37,26 @@
 #toggleBtn-cities {
   top: 50px;
   right: 10px;
+}
+
+.risk {
+  border-radius: 100%;
+  font-weight: bold;
+}
+
+#toggleBtn-risk1 {
+  background-color: hsl(0, 90%, 40%);
+  left: 50px;
+}
+
+#toggleBtn-risk2 {
+  background-color: hsl(60, 90%, 40%);
+  left: 90px;
+}
+
+#toggleBtn-risk3 {
+  background-color: hsl(120, 90%, 40%);
+  left: 130px;
 }
 
 .toggle-btn:hover,
