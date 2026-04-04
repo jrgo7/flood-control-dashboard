@@ -1,3 +1,5 @@
+import Dropdown from "./dropdown.js";
+
 export const initializeCharts = (initialRegionData) => {
   const budgetChart = createBarChart(
     "budgetChart",
@@ -13,8 +15,32 @@ export const initializeCharts = (initialRegionData) => {
     "Projects",
     "hsl(120, 40%, 32%)",
   );
+
   setupViewButtons();
-  return { budgetChart, countChart };
+
+  // Dropdowns
+
+  const activeRegions = new Set();
+  let currentSort = "default";
+
+
+  const regionDropdown = new Dropdown("regionDropdownLabel", "regionDropdown");
+  const updateRegion = (region, isChecked) => {
+    if (region === "clear") {
+      activeRegions.clear();
+    } else {
+      isChecked ? activeRegions.add(region) : activeRegions.delete(region);
+    }
+    fetchAndUpdateCharts(budgetChart, countChart, currentSort, activeRegions);
+  };
+  regionDropdown.populateCheckboxes(initialRegionData.names, updateRegion);
+
+  const sortDropdown = new Dropdown("sortDropdownLabel", "sortDropdown");
+  const updateSort = (sortValue) => {
+    currentSort = sortValue;
+    fetchAndUpdateCharts(budgetChart, countChart, currentSort, activeRegions);
+  };
+  sortDropdown.hookUpSortItems(updateSort);
 };
 
 const createBarChart = (canvasId, labels, data, labelText, barColor) => {

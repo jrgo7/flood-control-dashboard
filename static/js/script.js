@@ -1,20 +1,10 @@
-import Dropdown from "./dropdown.js";
-import { initializeCharts, fetchAndUpdateCharts } from "./chart.js";
+import { initializeCharts } from "./chart.js";
+import { getProjectRegionData } from "./data.js";
 
 const markers = new Map();
 
 document.addEventListener("DOMContentLoaded", async () => {
-  // Projects
-
-  const [projectsRes, regionsRes] = await Promise.all([
-    fetch("/api/projects"),
-    fetch("/api/regions"),
-  ]);
-
-  const initialProjectData = await projectsRes.json();
-  const initialRegionData = await regionsRes.json();
-
-  // Map
+  const { projectData, regionData } = await getProjectRegionData();
 
   const viewCavite = [[14.3456, 120.9365], 11];
   const worldMap = L.map("map").setView(...viewCavite);
@@ -28,39 +18,13 @@ document.addEventListener("DOMContentLoaded", async () => {
     },
   ).addTo(worldMap);
 
-  initialProjectData.forEach((project) => markProjectToMap(project, worldMap));
+  projectData.forEach((project) => markProjectToMap(project, worldMap));
 
-  // Charts
-
-  const { budgetChart, countChart } = initializeCharts(initialRegionData);
-
-  const activeRegions = new Set();
-  let currentSort = "default";
-
-  // Dropdowns
-
-  const regionDropdown = new Dropdown("regionDropdownLabel", "regionDropdown");
-  const updateRegion = (region, isChecked) => {
-    if (region === "clear") {
-      activeRegions.clear();
-    } else {
-      isChecked ? activeRegions.add(region) : activeRegions.delete(region);
-    }
-    fetchAndUpdateCharts(budgetChart, countChart, currentSort, activeRegions);
-  };
-  regionDropdown.populateCheckboxes(initialRegionData.names, updateRegion);
-
-  const sortDropdown = new Dropdown("sortDropdownLabel", "sortDropdown");
-  const updateSort = (sortValue) => {
-    currentSort = sortValue;
-    fetchAndUpdateCharts(budgetChart, countChart, currentSort, activeRegions);
-  };
-  sortDropdown.hookUpSortItems(updateSort);
-
-  //
-
+  initializeCharts(regionData);
   initializeToggleButtons(worldMap);
 });
+
+
 
 // Projects
 
@@ -171,8 +135,6 @@ const initializeToggleButtons = (worldMap) => {
     });
   });
 };
-
-export default initializeToggleButtons;
 
 const updateProjectStatsPanel = (data) => {
   const idIndicator = document.getElementById("project-id");
