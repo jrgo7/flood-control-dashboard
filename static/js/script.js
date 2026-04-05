@@ -3,25 +3,32 @@ import { getProjectRegionData } from "./data.js";
 
 const markers = new Map();
 
+
 document.addEventListener("DOMContentLoaded", async () => {
   const { projectData, regionData } = await getProjectRegionData();
 
   const viewCavite = [[14.3456, 120.9365], 11];
   const worldMap = L.map("map").setView(...viewCavite);
 
+  const riskLayers = {
+    1: L.layerGroup(),
+    2: L.layerGroup(),
+    3: L.layerGroup()
+  };
+
   L.tileLayer(
     "https://tiles.stadiamaps.com/tiles/stamen_terrain/{z}/{x}/{y}{r}.png",
     {
-      attribution:
-        "© Stadia Maps, © Stamen Design, © OpenStreetMap contributors",
+      attribution: "© Stadia Maps, © Stamen Design, © OpenStreetMap contributors",
       maxZoom: 18,
     },
   ).addTo(worldMap);
 
-  projectData.forEach((project) => markProjectToMap(project, worldMap));
+  projectData.forEach((project) => markProjectToMap(project, worldMap, riskLayers));
+  Object.values(riskLayers).forEach((layer) => layer.addTo(worldMap))
 
   initializeCharts(regionData);
-  initializeToggleButtons(worldMap);
+  initializeToggleButtons(worldMap, riskLayers);
 
   worldMap.invalidateSize();
 });
@@ -37,7 +44,7 @@ const getRiskColor = (level) => {
   return colors[level] || "#808080";
 };
 
-const markProjectToMap = (proj, worldMap) => {
+const markProjectToMap = (proj, worldMap, riskLayers) => {
   const color = getRiskColor(proj.RiskLevel);
   const coordinates = [proj.ProjectLatitude, proj.ProjectLongitude];
   const style = {
@@ -55,9 +62,16 @@ const markProjectToMap = (proj, worldMap) => {
     `Region: ${proj.Region}`;
 
   const marker = L.circleMarker(coordinates, style);
-  marker.addTo(worldMap);
   marker.bindPopup(popupHTML);
   markers.set(proj.ProjectId, marker);
+
+  let layer;
+  if (layer = riskLayers[proj.RiskLevel]) {
+    layer.addLayer(marker);
+  } else {
+    // TODO: Could add another layer to fallback to instead of direct to map
+    marker.addTo(worldMap);
+  } 
 };
 
 const listProject = (projectId, projectName, worldMap) => {
@@ -102,8 +116,8 @@ const populateCities = () => {
   /* TODO: City stats handling*/
 };
 
-const initializeToggleButtons = (worldMap) => {
-  const toggleBtns = document.getElementsByClassName("toggle-btn");
+const initializeToggleButtons = (worldMap, riskLayers) => {
+  const toggleBtns = document.getElementsByClassName("toggleBtn");
   const listPanel = document.getElementById("flood-control-projects");
   const controls = document.querySelector(".list-controls");
 
@@ -111,26 +125,25 @@ const initializeToggleButtons = (worldMap) => {
   listPanel.style.display = "none";
   controls.style.display = "none";
 
-  const toggleRiskLayer = (riskLevel, worldMap) => {
-    alert("TODO: Implement risk level filtering logic");
-    // markers.forEach((marker, projectId) => {
-    // const markerRiskLevel = "TODO";
-    // if (markerRiskLevel === riskLevel) {
-    //   if (!worldMap.hasLayer(marker)) marker.addTo(worldMap);
-    // } else {
-    //   if (worldMap.hasLayer(marker)) worldMap.removeLayer(marker);
-    // }
-    // });
+  const toggleRiskLayer = (riskLevel, worldMap, btn) => {
+    const layer = riskLayers[riskLevel]
+
+    if (worldMap.hasLayer(layer)) {
+      worldMap.removeLayer(layer)
+      btn.classList.remove('active');
+    } else {
+      worldMap.addLayer(layer)
+      btn.classList.add('active');
+    }
   };
 
   Array.from(toggleBtns).forEach((btn) => {
     btn.addEventListener("click", () => {
       const type = btn.dataset.type;
-      Array.from(toggleBtns).forEach((b) => b.classList.remove("active"));
 
-      if (type === "risk1" || type === "risk2" || type === "risk3") {
+      if (type.includes("risk")) {
         const riskLevel = parseInt(type.slice(-1));
-        toggleRiskLayer(riskLevel, worldMap);
+        toggleRiskLayer(riskLevel, worldMap, btn);
         return;
       }
 

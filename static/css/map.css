@@ -18,7 +18,7 @@
 
 /* TODO: Refactor... */
 
-.toggle-btn {
+.toggleBtn {
   position: absolute;
   top: 10px;
   z-index: 20000;
@@ -30,40 +30,40 @@
   border-radius: 16px;
 }
 
-#toggleBtn-projects {
+.toggleBtn-projects {
   right: 10px;
 }
 
-#toggleBtn-cities {
+.toggleBtn-cities {
   top: 50px;
   right: 10px;
 }
 
-.risk {
+.toggleBtn-risk {
   border-radius: 100%;
   font-weight: bold;
 }
 
-#toggleBtn-risk1 {
+.toggleBtn-risk1.active {
+  background-color: hsl(120, 90%, 40%);
+}
+
+.toggleBtn-risk2.active {
+  background-color: hsl(60, 90%, 40%);
+}
+
+.toggleBtn-risk3.active {
   background-color: hsl(0, 90%, 40%);
+}
+
+.toggleBtn-risk1 {
   left: 50px;
 }
 
-#toggleBtn-risk2 {
-  background-color: hsl(60, 90%, 40%);
+.toggleBtn-risk2 {
   left: 90px;
 }
 
-#toggleBtn-risk3 {
-  background-color: hsl(120, 90%, 40%);
+.toggleBtn-risk3 {
   left: 130px;
-}
-
-.toggle-btn:hover,
-.toggle-btn.active:hover {
-  background-color: var(--border);
-}
-
-.toggle-btn.active {
-  background-color: var(--border);
 }
