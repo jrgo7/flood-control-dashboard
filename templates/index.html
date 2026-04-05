@@ -6,16 +6,17 @@
 
     <div id="map" class="map">
       <button class="toggleBtn toggleBtn-projects" data-type="projects">Browse Projects</button>
-      <button class="toggleBtn toggleBtn-cities" data-type="cities">Browse Cities</button>
+      <button class="toggleBtn toggleBtn-province" data-type="province">Browse Province</button>
       <button class="toggleBtn toggleBtn-risk toggleBtn-risk1 active" data-type="risk1">1</button>
       <button class="toggleBtn toggleBtn-risk toggleBtn-risk2 active" data-type="risk2">2</button>
       <button class="toggleBtn toggleBtn-risk toggleBtn-risk3 active" data-type="risk3">3</button>
     </div>
+    <!--
     <div class="list-controls">
       <div class="search-bar">Search Bar</div>
       <div class="filter">Filter</div>
     </div>
-
+    -->
     <div id="flood-control-projects" class="panel list-panel">
       <ol id="flood-control-projects-list"></ol>
     </div>
@@ -23,9 +24,15 @@
 </section>
 
 <section id="right-column" class="column">
+  <!-- todo, better name ig like uhh projectNcity-stats :sob-->
   <div id="project-stats" class="panel">
     {% include 'project_stats.html' %}
   </div>
+
+  <div id="province-stats" class="panel">
+    {%include 'province_stats.html' %}
+  </div>
+
   <div id="regional-stats" class="panel">
     {% include 'regional_stats.html' %}
   </div>

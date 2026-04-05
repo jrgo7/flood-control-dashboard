@@ -6,29 +6,13 @@ from flask import Blueprint, jsonify
 
 routes = Blueprint("data", __name__)
 
-
 @lru_cache(maxsize=1)
 def load_base_data():
-    df = pd.read_csv("data/dpwh_flood_control_projects.csv")
-    df = df.dropna(subset=["ProjectLatitude", "ProjectLongitude", "Municipality"])
-    df["ProjectName"] = df["ProjectName"].str.removeprefix("Construction of ")
-
-    gdf_projects = gpd.GeoDataFrame(
-        df,
-        geometry=gpd.points_from_xy(df.ProjectLongitude, df.ProjectLatitude),
-        crs="EPSG:4326",
-    )
-
-    gdf_flood = gpd.read_file("data/shapefiles/Cavite_Flood_5year.shp")
-    joined = gpd.sjoin(gdf_projects, gdf_flood, how="left", predicate="intersects")
-
-    joined["RiskLevel"] = joined["Var"].fillna(0)
-    joined["ApprovedBudgetForContract"] = pd.to_numeric(
-        joined["ApprovedBudgetForContract"], errors="coerce"
-    ).fillna(0)
-    joined["Region"] = joined["Region"].fillna("Unknown")
-
-    return joined
+    df_allowed = pd.read_csv("data/province_list.csv")
+    allowed_provinces = df_allowed['Province'].unique()
+    gdf = gpd.read_file("data/all_joined_projects.gpkg")
+    gdf = gdf[gdf['Province'].isin(allowed_provinces)].copy()
+    return gdf
 
 
 @routes.get("/api/refresh")

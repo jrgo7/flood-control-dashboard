@@ -110,20 +110,143 @@ const populateProjectsList = async (worldMap) => {
   });
 };
 
-const populateCities = () => {
+
+const updateProvinceStatsPanel = (data) => {
+  toggleStatsView("province");
+
+  document.getElementById("province-name").innerText = data.Province || "Unknown Province";
+
+  const budgetVal = document.querySelector("#province-budget .card-value");
+  budgetVal.innerText = data.TotalBudget 
+    ? `₱${data.TotalBudget.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` 
+    : "N/A";
+
+  const countVal = document.querySelector("#province-project-count .card-value");
+  countVal.innerText = data.ProjectCount || 0;
+
+  const avgCostVal = document.querySelector("#province-average-cost-per-project .card-value");
+  if (data.TotalBudget && data.ProjectCount) {
+    const averageCost = data.TotalBudget / data.ProjectCount;
+    avgCostVal.innerText = `₱${averageCost.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  } else {
+    avgCostVal.innerText = "N/A";
+  }
+
+  const provinceRegionVal = document.querySelector("#province-region .card-value");
+  if (data.Region) {
+    provinceRegionVal.innerText = data.Region;
+  } else {
+    provinceRegionVal.innerText = "N/A";
+  }
+  
+  const rbiMatrix = document.querySelector(".rbi-matrix");
+  if (rbiMatrix && data.norm_risk !== undefined) {
+    rbiMatrix.innerHTML = '<canvas id="rbmChart" style="width: 100%; height: 300px;"></canvas>';
+    
+    const ctx = document.getElementById('rbmChart').getContext('2d');
+    
+    new Chart(ctx, {
+      type: 'scatter',
+      data: {
+        datasets: [{
+          label: data.Province,
+          data: [{ x: data.norm_risk, y: data.norm_budget }],
+          backgroundColor: '#e8ff16ff',
+          borderColor: '#fff',
+          borderWidth: 2,
+          pointRadius: 8,
+          pointHoverRadius: 10
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          title: {
+            display: true,
+            text: `RBI: ${data.Matrix_Scenario}`,
+            color: '#fff'
+          },
+          legend: { display: false }
+        },
+        scales: {
+          x: {
+            min: 0, max: 1,
+            title: { display: true, text: 'Risk Score (Norm)', color: '#aaa' },
+            grid: { color: 'rgba(255, 255, 255, 0.1)' },
+            ticks: { color: '#888' }
+          },
+          y: {
+            min: 0, max: 1,
+            title: { display: true, text: 'Budget Level (Norm)', color: '#aaa' },
+            grid: { color: 'rgba(255, 255, 255, 0.1)' },
+            ticks: { color: '#888' }
+          }
+        }
+      }
+    });
+  } else if (rbiMatrix) {
+      rbiMatrix.innerHTML = '<p style="color: gray; text-align: center;">No Matrix Data Available</p>';
+  }
+};
+
+const listProvince = (provinceName, worldMap) => {
+  const listContainer = document.querySelector(
+    "#flood-control-projects-list"
+  );
+  const provinceListing = document.createElement("li");
+  provinceListing.innerText = provinceName;
+  provinceListing.dataset.provinceName = provinceName;
+
+  provinceListing.onclick = async () => {
+    const response = await fetch(`/api/province/${provinceName}`);
+
+    if (response.ok) {
+      const provDataArray = await response.json();
+      const provData = provDataArray[0];
+      
+      if (provData) {
+        updateProvinceStatsPanel(provData);
+        
+        if (provData.MinLat && provData.MaxLat && provData.MinLng && provData.MaxLng) {
+          const provinceBounds = [
+            [provData.MinLat, provData.MinLng],
+            [provData.MaxLat, provData.MaxLng]
+          ];
+          
+          worldMap.flyToBounds(provinceBounds, {
+            maxZoom: 18
+          });
+        }
+      }
+    }
+  };
+  
+  listContainer.appendChild(provinceListing);
+};
+
+const populateProvinceList = async (worldMap) => {
   clearProjectList();
 
-  /* TODO: City stats handling*/
+  const response = await fetch(`/api/province/names`);
+  
+  if (response.ok) {
+    const provinces = await response.json();
+
+    provinces.forEach((provinceName) => {
+      listProvince(provinceName, worldMap);
+    });
+  }
 };
 
 const initializeToggleButtons = (worldMap, riskLayers) => {
   const toggleBtns = document.getElementsByClassName("toggleBtn");
   const listPanel = document.getElementById("flood-control-projects");
-  const controls = document.querySelector(".list-controls");
+  // const controls = document.querySelector(".list-controls");
 
   let activeType = null;
   listPanel.style.display = "none";
-  controls.style.display = "none";
+  // controls.style.display = "none";
 
   const toggleRiskLayer = (riskLevel, worldMap, btn) => {
     const layer = riskLayers[riskLevel]
@@ -150,16 +273,16 @@ const initializeToggleButtons = (worldMap, riskLayers) => {
       if (activeType === type) {
         activeType = null;
         listPanel.style.display = "none";
-        controls.style.display = "none";
+        // controls.style.display = "none";
       } else {
         activeType = type;
         btn.classList.add("active");
         listPanel.style.display = "flex";
-        controls.style.display = "flex";
+        // controls.style.display = "flex";
         if (type === "projects") {
           populateProjectsList(worldMap);
-        } else if (type === "cities") {
-          populateCities();
+        } else if (type === "province") {
+          populateProvinceList(worldMap);
         }
       }
 
@@ -169,13 +292,17 @@ const initializeToggleButtons = (worldMap, riskLayers) => {
 };
 
 const updateProjectStatsPanel = (data) => {
+
+  toggleStatsView("project");
+
   const idIndicator = document.getElementById("project-id");
   idIndicator.innerText = data.ProjectId || "N/A";
 
   idIndicator.className = "project-id-risk-indicator";
-  if (data.RiskLevel >= 3) idIndicator.classList.add("risk-level-high");
+  if (data.RiskLevel === 3) idIndicator.classList.add("risk-level-high");
   else if (data.RiskLevel === 2) idIndicator.classList.add("risk-level-medium");
-  else idIndicator.classList.add("risk-level-low");
+  else if (data.RiskLevel === 1) idIndicator.classList.add("risk-level-low");
+  else idIndicator.classList.add("risk-level-unknown");
 
   document.getElementById("project-name").innerText =
     data.ProjectName || "Unknown Project";
@@ -229,4 +356,18 @@ const updateProjectStatsPanel = (data) => {
 
   document.querySelector("#project-location .card-value").innerText =
     `${lat}, ${lng}`;
+};
+
+
+const toggleStatsView = (viewType) => {
+  const projectPanel = document.getElementById("project-stats");
+  const provincePanel = document.getElementById("province-stats");
+
+  if (viewType === "project") {
+    projectPanel.style.display = "flex";
+    provincePanel.style.display = "none";
+  } else if (viewType === "province") {
+    projectPanel.style.display = "none";
+    provincePanel.style.display = "flex";
+  }
 };

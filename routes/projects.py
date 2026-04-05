@@ -61,7 +61,6 @@ def get_project_detail(project_id):
         "StartDate",
         "ActualCompletionDate",
         "TypeOfWork",
-        "Location",
     ]
 
     available_cols = [col for col in columns_to_extract if col in project_df.columns]

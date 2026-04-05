@@ -1,0 +1,22 @@
+#province-stats{
+    display: none;
+    flex-direction: column;
+}
+
+#province-stats-left {
+    display: flex;
+    flex: 65;
+    flex-direction: column;
+    gap: 15px;
+}
+
+#province-stats-budget-n-project-count {
+    display: flex;
+    flex: 1;
+    gap: 15px;
+}
+
+#province-stats-right{
+    display: flex;
+    flex: 35;
+}

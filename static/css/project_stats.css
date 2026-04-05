@@ -31,6 +31,10 @@
     background-color: #da381b
 }
 
+.risk-level-unknown{
+    background-color: #808080;
+}
+
 .project-name {
     font-size: 1.5rem;
     font-weight: bold;
