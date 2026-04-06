@@ -66,6 +66,10 @@
   background-color: hsl(0, 90%, 40%);
 }
 
+.toggleBtn-risk0.active {
+  background-color: hsl(0, 0%, 30%);
+}
+
 .toggleBtn-risk1 {
   left: 50px;
 }
@@ -77,3 +81,8 @@
 .toggleBtn-risk3 {
   left: 130px;
 }
+
+.toggleBtn-risk0 {
+  left: 170px;
+}
+

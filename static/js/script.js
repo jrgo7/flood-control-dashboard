@@ -11,6 +11,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   const worldMap = L.map("map").setView(...viewCavite);
 
   const riskLayers = {
+    0: L.layerGroup(),
     1: L.layerGroup(),
     2: L.layerGroup(),
     3: L.layerGroup()
