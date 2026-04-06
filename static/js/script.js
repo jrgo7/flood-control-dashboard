@@ -64,7 +64,7 @@ const markProjectToMap = (proj, worldMap, riskLayers) => {
   markers.set(proj.ProjectId, marker);
   marker.on('click', (e) => {
     fetchProjectData(proj.ProjectId, worldMap)
-    loadProvince(proj.Province)
+    loadProvince(proj.Province, worldMap, false)
   });
 
   let layer;
@@ -197,7 +197,7 @@ const updateProvinceStatsPanel = (data) => {
   }
 };
 
-const loadProvince = async (provinceName, fly) => {
+const loadProvince = async (provinceName, worldMap, fly) => {
   const response = await fetch(`/api/province/${encodeURIComponent(provinceName)}`);
 
   if (response.ok) {
@@ -206,9 +206,17 @@ const loadProvince = async (provinceName, fly) => {
     
     if (provData) {
       updateProvinceStatsPanel(provData);
-      return true;      
-    } else {
-      return false;
+
+      if (fly == true & provData.MinLat && provData.MaxLat && provData.MinLng && provData.MaxLng) {
+        const provinceBounds = [
+          [provData.MinLat, provData.MinLng],
+          [provData.MaxLat, provData.MaxLng]
+        ];
+        
+        worldMap.flyToBounds(provinceBounds, {
+          maxZoom: 18
+        });
+      }
     }
   }
 }
@@ -223,19 +231,8 @@ const listProvince = (provinceName, worldMap) => {
   provinceListing.dataset.provinceName = provinceName;
 
   provinceListing.onclick = async () => {
-    if (loadProvince(provinceName) == true) {
-      toggleStatsView("province");
-      if (provData.MinLat && provData.MaxLat && provData.MinLng && provData.MaxLng) {
-        const provinceBounds = [
-          [provData.MinLat, provData.MinLng],
-          [provData.MaxLat, provData.MaxLng]
-        ];
-        
-        worldMap.flyToBounds(provinceBounds, {
-          maxZoom: 18
-        });
-      }
-    };
+    loadProvince(provinceName, worldMap, true)
+    toggleStatsView("province");
   };
   
   listContainer.appendChild(provinceListing);
