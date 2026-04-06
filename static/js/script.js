@@ -16,13 +16,10 @@ document.addEventListener("DOMContentLoaded", async () => {
     3: L.layerGroup()
   };
 
-  L.tileLayer(
-    "https://tiles.stadiamaps.com/tiles/stamen_terrain/{z}/{x}/{y}{r}.png",
-    {
-      attribution: "© Stadia Maps, © Stamen Design, © OpenStreetMap contributors",
-      maxZoom: 18,
-    },
-  ).addTo(worldMap);
+   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© OpenStreetMap contributors',
+        maxZoom: 18,
+    }).addTo(worldMap);
 
   projectData.forEach((project) => markProjectToMap(project, worldMap, riskLayers));
   Object.values(riskLayers).forEach((layer) => layer.addTo(worldMap))
