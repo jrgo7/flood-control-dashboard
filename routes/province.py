@@ -56,7 +56,7 @@ def get_province_detail(province):
     province_df = df[df["Province"] == unquote(province)].copy()
 
     if not province_df.empty:
-        rbm_match = rbm[rbm["Province"].str.lower() == province.lower()]
+        rbm_match = rbm[rbm["Province"].str.lower() == unquote(province).lower()]
 
         if not rbm_match.empty:
             province_df["norm_risk"] = rbm_match["norm_risk"].values[0]

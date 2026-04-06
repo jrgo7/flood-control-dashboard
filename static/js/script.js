@@ -207,7 +207,7 @@ const loadProvince = async (provinceName, worldMap, fly) => {
     if (provData) {
       updateProvinceStatsPanel(provData);
 
-      if (fly == true & provData.MinLat && provData.MaxLat && provData.MinLng && provData.MaxLng) {
+      if (fly == true && provData.MinLat && provData.MaxLat && provData.MinLng && provData.MaxLng) {
         const provinceBounds = [
           [provData.MinLat, provData.MinLng],
           [provData.MaxLat, provData.MaxLng]
