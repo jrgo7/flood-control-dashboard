@@ -26,7 +26,7 @@
   cursor: pointer;
   background-color: var(--background);
   color: var(--text);
-  border: 2px var(--border);
+  border: 1px solid var(--border);
   border-radius: 16px;
 }
 
@@ -35,22 +35,21 @@
 }
 
 .toggleBtn-province {
-  top: 50px;
+  top: 55px;
   right: 10px;
 }
 
 .toggleBtn-reset {
-  top: 90px;
+  top: 100px;
   right: 10px;
 }
 
 .toggleBtn-sidebar {
-  top: 130px;
+  top: 145px;
   right: 10px;
 }
 
 .toggleBtn-risk {
-  border-radius: 100%;
   font-weight: bold;
 }
 
@@ -75,14 +74,14 @@
 }
 
 .toggleBtn-risk2 {
-  left: 90px;
+  left: 95px;
 }
 
 .toggleBtn-risk3 {
-  left: 130px;
+  left: 140px;
 }
 
 .toggleBtn-risk0 {
-  left: 170px;
+  left: 185px;
 }
 

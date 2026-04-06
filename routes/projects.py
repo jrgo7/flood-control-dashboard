@@ -21,6 +21,7 @@ def get_projects():
             "RiskLevel",
             "ApprovedBudgetForContract",
             "Region",
+            "Province",
         ]
     ].to_dict(orient="records")
 

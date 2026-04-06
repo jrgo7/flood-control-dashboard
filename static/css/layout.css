@@ -81,3 +81,15 @@ main {
   /* max-height: 85vh */
   gap: 15px;
 }
+
+.tab-button {
+  background-color: var(--background);
+  border: 1px solid var(--border);
+  flex: 1;
+  border-radius: 10px;
+}
+
+.tab-button.active {
+  background-color: hsl(120, 90%, 20%);
+}
+

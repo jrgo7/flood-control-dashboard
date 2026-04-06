@@ -64,6 +64,7 @@ const markProjectToMap = (proj, worldMap, riskLayers) => {
   markers.set(proj.ProjectId, marker);
   marker.on('click', (e) => {
     fetchProjectData(proj.ProjectId, worldMap)
+    loadProvince(proj.Province)
   });
 
   let layer;
@@ -84,6 +85,7 @@ const fetchProjectData = async (projectId, worldMap) => {
     worldMap.flyTo([projData.ProjectLatitude, projData.ProjectLongitude], 18);
     markers.get(projectId).openPopup();
     updateProjectStatsPanel(projData);
+    toggleStatsView("project");
   }
 }
 
@@ -119,8 +121,6 @@ const populateProjectsList = async (worldMap) => {
 
 
 const updateProvinceStatsPanel = (data) => {
-  toggleStatsView("province");
-
   document.getElementById("province-name").innerText = data.Province || "Unknown Province";
 
   const budgetVal = document.querySelector("#province-budget .card-value");
@@ -197,6 +197,23 @@ const updateProvinceStatsPanel = (data) => {
   }
 };
 
+const loadProvince = async (provinceName, fly) => {
+  const response = await fetch(`/api/province/${encodeURIComponent(provinceName)}`);
+
+  if (response.ok) {
+    const provDataArray = await response.json();
+    const provData = provDataArray[0];
+    
+    if (provData) {
+      updateProvinceStatsPanel(provData);
+      return true;      
+    } else {
+      return false;
+    }
+  }
+}
+
+
 const listProvince = (provinceName, worldMap) => {
   const listContainer = document.querySelector(
     "#flood-control-projects-list"
@@ -206,27 +223,19 @@ const listProvince = (provinceName, worldMap) => {
   provinceListing.dataset.provinceName = provinceName;
 
   provinceListing.onclick = async () => {
-    const response = await fetch(`/api/province/${encodeURIComponent(provinceName)}`);
-
-    if (response.ok) {
-      const provDataArray = await response.json();
-      const provData = provDataArray[0];
-      
-      if (provData) {
-        updateProvinceStatsPanel(provData);
+    if (loadProvince(provinceName) == true) {
+      toggleStatsView("province");
+      if (provData.MinLat && provData.MaxLat && provData.MinLng && provData.MaxLng) {
+        const provinceBounds = [
+          [provData.MinLat, provData.MinLng],
+          [provData.MaxLat, provData.MaxLng]
+        ];
         
-        if (provData.MinLat && provData.MaxLat && provData.MinLng && provData.MaxLng) {
-          const provinceBounds = [
-            [provData.MinLat, provData.MinLng],
-            [provData.MaxLat, provData.MaxLng]
-          ];
-          
-          worldMap.flyToBounds(provinceBounds, {
-            maxZoom: 18
-          });
-        }
+        worldMap.flyToBounds(provinceBounds, {
+          maxZoom: 18
+        });
       }
-    }
+    };
   };
   
   listContainer.appendChild(provinceListing);
@@ -247,6 +256,7 @@ const populateProvinceList = async (worldMap) => {
 };
 
 const initializeToggleButtons = (worldMap, riskLayers) => {
+  const tabButtons = document.getElementsByClassName("tab-button");
   const toggleBtns = document.getElementsByClassName("toggleBtn");
   const listPanel = document.getElementById("flood-control-projects");
   // const controls = document.querySelector(".list-controls");
@@ -279,6 +289,15 @@ const initializeToggleButtons = (worldMap, riskLayers) => {
     }
   };
 
+  Array.from(tabButtons).forEach((active_btn) => {
+    active_btn.addEventListener("click", () => {
+      const type = active_btn.dataset.type;
+
+      toggleStatsView(type);
+
+    })
+  })
+
   Array.from(toggleBtns).forEach((btn) => {
     btn.addEventListener("click", () => {
       const type = btn.dataset.type;
@@ -305,7 +324,7 @@ const initializeToggleButtons = (worldMap, riskLayers) => {
         btn.classList.add("active");
         listPanel.style.display = "flex";
         // controls.style.display = "flex";
-        if (type === "projects") {
+        if (type === "project") {
           populateProjectsList(worldMap);
         } else if (type === "province") {
           populateProvinceList(worldMap);
@@ -318,9 +337,6 @@ const initializeToggleButtons = (worldMap, riskLayers) => {
 };
 
 const updateProjectStatsPanel = (data) => {
-
-  toggleStatsView("project");
-
   const idIndicator = document.getElementById("project-id");
   idIndicator.innerText = data.ProjectId || "N/A";
 
@@ -350,7 +366,7 @@ const updateProjectStatsPanel = (data) => {
 
   const contractors =
     data.Contractor && data.Contractor !== "N/A"
-      ? data.Contractor.split(",")
+      ? data.Contractor.split("/")
       : ["No contractors listed"];
 
   document.getElementById("contractor-count").innerText =
@@ -386,14 +402,31 @@ const updateProjectStatsPanel = (data) => {
 
 
 const toggleStatsView = (viewType) => {
+  const tabButtons = document.getElementsByClassName("tab-button");
+
   const projectPanel = document.getElementById("project-stats");
   const provincePanel = document.getElementById("province-stats");
+  const regionalPanel = document.getElementById("regional-stats");
+
+  Array.from(tabButtons).forEach((btn) => {
+    if (btn.dataset.type == viewType) {
+      btn.classList.add("active");
+    } else {
+      btn.classList.remove("active");
+    }
+  })
 
   if (viewType === "project") {
     projectPanel.style.display = "flex";
     provincePanel.style.display = "none";
+    regionalPanel.style.display = "none";
   } else if (viewType === "province") {
     projectPanel.style.display = "none";
     provincePanel.style.display = "flex";
+    regionalPanel.style.display = "none";
+  } else if (viewType === "regional") {
+    projectPanel.style.display = "none";
+    provincePanel.style.display = "none";
+    regionalPanel.style.display = "flex";
   }
 };

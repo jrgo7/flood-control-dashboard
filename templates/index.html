@@ -1,18 +1,17 @@
 {% extends "base.html" %} {% block content %}
 
 <section id="left-column" class="column">
-
   <div class="panel map-list-panel">
 
     <div id="map" class="map">
-      <button class="toggleBtn toggleBtn-projects" data-type="projects">Browse Projects</button>
-      <button class="toggleBtn toggleBtn-province" data-type="province">Browse Province</button>
+      <button class="toggleBtn toggleBtn-projects" data-type="projects">Browse projects</button>
+      <button class="toggleBtn toggleBtn-province" data-type="province">Browse provinces</button>
       <button class="toggleBtn toggleBtn-reset" data-type="reset">Reset view</button>
+      <button class="toggleBtn toggleBtn-sidebar" data-type="sidebar">Show/hide sidebar</button>
       <button class="toggleBtn toggleBtn-risk toggleBtn-risk1 active" data-type="risk1">1</button>
       <button class="toggleBtn toggleBtn-risk toggleBtn-risk2 active" data-type="risk2">2</button>
       <button class="toggleBtn toggleBtn-risk toggleBtn-risk3 active" data-type="risk3">3</button>
       <button class="toggleBtn toggleBtn-risk toggleBtn-risk0 active" data-type="risk0">Unknown</button>
-      <button class="toggleBtn toggleBtn-sidebar" data-type="sidebar">Show/hide sidebar</button>
     </div>
     <!--
     <div class="list-controls">
@@ -27,6 +26,11 @@
 </section>
 
 <section id="sidebar" class="column">
+  <div id="sidebar-tabs" style="display: flex">
+    <button class="tab-button active" data-type="project">Project</button>
+    <button class="tab-button" data-type="province">Province</button>
+    <button class="tab-button" data-type="regional">Regional</button>
+  </div>
   <!-- todo, better name ig like uhh projectNcity-stats :sob-->
   <div id="project-stats" class="panel">
     {% include 'project_stats.html' %}
