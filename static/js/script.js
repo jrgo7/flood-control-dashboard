@@ -2,12 +2,12 @@ import { initializeCharts } from "./chart.js";
 import { getProjectRegionData } from "./data.js";
 
 const markers = new Map();
+const viewCavite = [[14.3456, 120.9365], 11];
 
 
 document.addEventListener("DOMContentLoaded", async () => {
   const { projectData, regionData } = await getProjectRegionData();
 
-  const viewCavite = [[14.3456, 120.9365], 11];
   const worldMap = L.map("map").setView(...viewCavite);
 
   const riskLayers = {
@@ -16,10 +16,10 @@ document.addEventListener("DOMContentLoaded", async () => {
     3: L.layerGroup()
   };
 
-   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '© OpenStreetMap contributors',
-        maxZoom: 18,
-    }).addTo(worldMap);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '© OpenStreetMap contributors',
+    maxZoom: 18,
+  }).addTo(worldMap);
 
   projectData.forEach((project) => markProjectToMap(project, worldMap, riskLayers));
   Object.values(riskLayers).forEach((layer) => layer.addTo(worldMap))
@@ -61,6 +61,9 @@ const markProjectToMap = (proj, worldMap, riskLayers) => {
   const marker = L.circleMarker(coordinates, style);
   marker.bindPopup(popupHTML);
   markers.set(proj.ProjectId, marker);
+  marker.on('click', (e) => {
+    fetchProjectData(proj.ProjectId, worldMap)
+  });
 
   let layer;
   if (layer = riskLayers[proj.RiskLevel]) {
@@ -69,9 +72,22 @@ const markProjectToMap = (proj, worldMap, riskLayers) => {
     // TODO: Could add another layer to fallback to instead of direct to map
     marker.addTo(worldMap);
   } 
+
 };
 
+const fetchProjectData = async (projectId, worldMap) => {
+  const response = await fetch(`/api/projects/${projectId}`);
+
+  if (response.ok) {
+    const projData = await response.json();
+    worldMap.flyTo([projData.ProjectLatitude, projData.ProjectLongitude], 18);
+    markers.get(projectId).openPopup();
+    updateProjectStatsPanel(projData);
+  }
+}
+
 const listProject = (projectId, projectName, worldMap) => {
+  console.log("here")
   const floodControlProjects = document.querySelector(
     "#flood-control-projects-list",
   );
@@ -79,15 +95,8 @@ const listProject = (projectId, projectName, worldMap) => {
   projectListing.innerText = projectName;
   projectListing.dataset.projectId = projectId;
 
-  projectListing.onclick = async () => {
-    const response = await fetch(`/api/projects/${projectId}`);
-
-    if (response.ok) {
-      const projData = await response.json();
-      worldMap.flyTo([projData.ProjectLatitude, projData.ProjectLongitude], 18);
-      markers.get(projectId).openPopup();
-      updateProjectStatsPanel(projData);
-    }
+  projectListing.onclick = () => {
+    fetchProjectData(projectId, worldMap)
   };
   floodControlProjects.appendChild(projectListing);
 };
@@ -196,7 +205,7 @@ const listProvince = (provinceName, worldMap) => {
   provinceListing.dataset.provinceName = provinceName;
 
   provinceListing.onclick = async () => {
-    const response = await fetch(`/api/province/${provinceName}`);
+    const response = await fetch(`/api/province/${encodeURIComponent(provinceName)}`);
 
     if (response.ok) {
       const provDataArray = await response.json();
@@ -245,6 +254,18 @@ const initializeToggleButtons = (worldMap, riskLayers) => {
   listPanel.style.display = "none";
   // controls.style.display = "none";
 
+  const toggleSidebar = () => {
+    const sidebar = document.querySelector("#sidebar")
+    
+    if (sidebar.classList.contains("column-hidden")) {
+      sidebar.classList.remove("column-hidden")
+    } else {
+      sidebar.classList.add("column-hidden")
+    }
+
+    worldMap.invalidateSize();
+  }
+
   const toggleRiskLayer = (riskLevel, worldMap, btn) => {
     const layer = riskLayers[riskLevel]
 
@@ -261,12 +282,19 @@ const initializeToggleButtons = (worldMap, riskLayers) => {
     btn.addEventListener("click", () => {
       const type = btn.dataset.type;
 
+
       if (type.includes("risk")) {
         const riskLevel = parseInt(type.slice(-1));
         toggleRiskLayer(riskLevel, worldMap, btn);
         return;
+      } else if (type === "reset") {
+        worldMap.setView(...viewCavite);
+        return;
+      } else if (type === "sidebar") {
+        toggleSidebar()
+        return;
       }
-
+      
       if (activeType === type) {
         activeType = null;
         listPanel.style.display = "none";

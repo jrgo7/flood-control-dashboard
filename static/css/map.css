@@ -39,6 +39,16 @@
   right: 10px;
 }
 
+.toggleBtn-reset {
+  top: 90px;
+  right: 10px;
+}
+
+.toggleBtn-sidebar {
+  top: 130px;
+  right: 10px;
+}
+
 .toggleBtn-risk {
   border-radius: 100%;
   font-weight: bold;

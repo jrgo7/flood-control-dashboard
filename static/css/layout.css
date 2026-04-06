@@ -44,10 +44,11 @@ main {
   flex: 55;
 }
 
-#right-column {
+#sidebar {
   flex: 45;
   gap: inherit;
 }
+
 
 .column {
   display: flex;
@@ -55,6 +56,9 @@ main {
   width: 100%;
   max-height: calc(100vh - 2 * var(--ribbons-height) - 2em);
   gap: 1em;
+}
+.column-hidden {
+  display: none;
 }
 
 .panel {
