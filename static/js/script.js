@@ -105,18 +105,20 @@ const listProject = (projectId, projectName, worldMap) => {
 };
 
 const clearProjectList = () => {
-  document.querySelector("#flood-control-projects-list").innerHTML = "";
+  document.querySelector("#flood-control-projects-list").innerHTML = ``;
 };
 
-const populateProjectsList = async (worldMap) => {
+const populateProjectsList = async (worldMap, searchQuery = "") => {
   clearProjectList();
 
-  const response = await fetch(`/api/projects/names`);
-  const projects = await response.json();
+  const response = await fetch(`/api/projects/names?q=${encodeURIComponent(searchQuery)}`);
 
-  projects.forEach((proj) => {
-    listProject(proj.ProjectId, proj.ProjectName, worldMap);
-  });
+  if (response.ok) {
+    const projects = await response.json();
+    projects.forEach((proj) => {
+      listProject(proj.ProjectId, proj.ProjectName, worldMap);
+    });
+  }
 };
 
 
@@ -242,10 +244,10 @@ const listProvince = (provinceName, worldMap) => {
   listContainer.appendChild(provinceListing);
 };
 
-const populateProvinceList = async (worldMap) => {
+const populateProvinceList = async (worldMap, searchQuery = "") => {
   clearProjectList();
 
-  const response = await fetch(`/api/province/names`);
+  const response = await fetch(`/api/province/names?q=${encodeURIComponent(searchQuery)}`);
   
   if (response.ok) {
     const provinces = await response.json();
@@ -255,16 +257,31 @@ const populateProvinceList = async (worldMap) => {
     });
   }
 };
-
 const initializeToggleButtons = (worldMap, riskLayers) => {
   const tabButtons = document.getElementsByClassName("tab-button");
   const toggleBtns = document.getElementsByClassName("toggleBtn");
   const listPanel = document.getElementById("flood-control-projects");
-  // const controls = document.querySelector(".list-controls");
+  const controls = document.querySelector(".list-controls");
 
   let activeType = null;
   listPanel.style.display = "none";
-  // controls.style.display = "none";
+  controls.style.display = "none";
+
+  const searchInput = document.getElementById("search-bar-input");
+  let searchTimeout;
+
+  searchInput.addEventListener("input", (e) => {
+    clearTimeout(searchTimeout);
+    
+    searchTimeout = setTimeout(() => {
+      const query = e.target.value;
+      if (activeType === "project") {
+        populateProjectsList(worldMap, query);
+      } else if (activeType === "province") {
+        populateProvinceList(worldMap, query);
+      }
+    }, 250);
+  });
 
   const toggleSidebar = () => {
     const sidebar = document.querySelector("#sidebar")
@@ -319,17 +336,20 @@ const initializeToggleButtons = (worldMap, riskLayers) => {
       if (activeType === type) {
         activeType = null;
         listPanel.style.display = "none";
-        // controls.style.display = "none";
+        controls.style.display = "none";
       } else {
         activeType = type;
         btn.classList.add("active");
         listPanel.style.display = "flex";
-        // controls.style.display = "flex";
+        controls.style.display = "flex";
         if (type === "project") {
-          populateProjectsList(worldMap);
+          searchInput.placeholder = "Search projects...";
+          populateProjectsList(worldMap, searchInput.value);
         } else if (type === "province") {
-          populateProvinceList(worldMap);
+          searchInput.placeholder = "Search provinces...";
+          populateProvinceList(worldMap, searchInput.value);
         }
+
       }
 
       if (worldMap) worldMap.invalidateSize();

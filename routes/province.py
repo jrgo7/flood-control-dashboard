@@ -44,8 +44,14 @@ def get_province_names():
     df = load_base_data()
     regions_param = request.args.get("regions")
     df = filter_by_region(df, regions_param)
-    return jsonify(df["Province"].dropna().unique().tolist())
-
+    
+    provinces = df["Province"].dropna().unique()
+    
+    search_query = request.args.get("q")
+    if search_query:
+        provinces = [p for p in provinces if search_query.lower() in p.lower()]
+        
+    return jsonify(list(provinces))
 
 @routes.get("/api/province/<string:province>")
 def get_province_detail(province):

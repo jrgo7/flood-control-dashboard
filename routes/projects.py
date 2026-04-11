@@ -35,6 +35,10 @@ def get_project_names():
     regions_param = request.args.get("regions")
     df = filter_by_region(df, regions_param)
 
+    search_query = request.args.get("q")
+    if search_query:
+        df = df[df["ProjectName"].str.contains(search_query, case=False, na=False, regex=False)]
+
     names = df[["ProjectId", "ProjectName"]].dropna().to_dict(orient="records")
     return jsonify(names)
 
