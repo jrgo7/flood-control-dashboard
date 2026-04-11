@@ -1,7 +1,7 @@
 #project-stats {
     display: flex;
     flex-direction: column;
-    flex: 35;
+
 }
 
 .project-stats-header {

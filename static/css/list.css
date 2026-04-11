@@ -5,6 +5,11 @@
 }
 
 .search-bar {
+  display: flex;
+  flex: 1;
+}
+
+.search-bar input {
   flex: 1;
   padding: 11px;
   border: 1px solid var(--border);
@@ -56,6 +61,7 @@
     gap: 10px;
     display: flex;
     flex-direction: column;
+    scrollbar-gutter: stable;
 }
 
 #flood-control-projects-list > li {

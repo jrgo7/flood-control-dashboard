@@ -4,21 +4,40 @@
   <div class="panel map-list-panel">
 
     <div id="map" class="map">
-      <button class="toggleBtn toggleBtn-projects" data-type="projects">Browse projects</button>
-      <button class="toggleBtn toggleBtn-province" data-type="province">Browse provinces</button>
-      <button class="toggleBtn toggleBtn-reset" data-type="reset">Reset view</button>
-      <button class="toggleBtn toggleBtn-sidebar" data-type="sidebar">Show/hide sidebar</button>
-      <button class="toggleBtn toggleBtn-risk toggleBtn-risk1 active" data-type="risk1">1</button>
-      <button class="toggleBtn toggleBtn-risk toggleBtn-risk2 active" data-type="risk2">2</button>
-      <button class="toggleBtn toggleBtn-risk toggleBtn-risk3 active" data-type="risk3">3</button>
-      <button class="toggleBtn toggleBtn-risk toggleBtn-risk0 active" data-type="risk0">Unknown</button>
+      
+      <div class="map-controls risk-controls">
+        <button class="toggleBtn toggleBtn-risk toggleBtn-risk1 active" data-type="risk1">1</button>
+        <button class="toggleBtn toggleBtn-risk toggleBtn-risk2 active" data-type="risk2">2</button>
+        <button class="toggleBtn toggleBtn-risk toggleBtn-risk3 active" data-type="risk3">3</button>
+        <button class="toggleBtn toggleBtn-risk toggleBtn-risk0 active" data-type="risk0">Unknown</button>
+      </div>
+
+      <div class="map-controls action-controls">
+        <button class="toggleBtn material-symbols-outlined" data-type="project" title="Browse projects">
+          assignment
+        </button>
+        <button class="toggleBtn material-symbols-outlined" data-type="province" title="Browse provinces">
+          landscape
+        </button>
+        <button class="toggleBtn material-symbols-outlined" data-type="reset" title="Reset view">
+          refresh
+        </button>
+        <button class="toggleBtn material-symbols-outlined" data-type="sidebar" title="Show/hide sidebar">
+          dock_to_left
+        </button>
+      </div>
+
     </div>
-    <!--
+
+    <!-- Paginate with a new route, i think 
     <div class="list-controls">
-      <div class="search-bar">Search Bar</div>
-      <div class="filter">Filter</div>
+      <div class="search-bar">
+        <input type="text" id="sidebar-search" placeholder="Search projects or provinces..." />
+      </div>
+      <div class="filter">Filter</div> 
     </div>
     -->
+
     <div id="flood-control-projects" class="panel list-panel">
       <ol id="flood-control-projects-list"></ol>
     </div>

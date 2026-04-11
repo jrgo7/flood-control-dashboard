@@ -181,13 +181,17 @@ const updateProvinceStatsPanel = (data) => {
             min: 0, max: 1,
             title: { display: true, text: 'Risk Score (Norm)', color: '#aaa' },
             grid: { color: 'rgba(255, 255, 255, 0.1)' },
-            ticks: { color: '#888' }
+            ticks: { color: '#888',
+                    stepSize: 0.5
+             }
           },
           y: {
             min: 0, max: 1,
             title: { display: true, text: 'Budget Level (Norm)', color: '#aaa' },
             grid: { color: 'rgba(255, 255, 255, 0.1)' },
-            ticks: { color: '#888' }
+            ticks: { color: '#888',
+                     stepSize: 0.5
+             }
           }
         }
       }
