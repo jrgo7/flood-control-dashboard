@@ -20,19 +20,19 @@
 }
 
 .risk-level-low{
-    background-color: #FCD34D
+    background-color: hsl(120, 90%, 40%)
 }
 
 .risk-level-medium{
-    background-color: #ff9b05
+    background-color: hsl(60, 90%, 40%)
 }
 
 .risk-level-high{
-    background-color: #da381b
+    background-color: hsl(0, 90%, 40%)
 }
 
 .risk-level-unknown{
-    background-color: #808080;
+    background-color: hsl(0, 0%, 30%);
 }
 
 .project-name {

@@ -1,0 +1,63 @@
+SHP_Province,risk_score
+Aklan,0.1483
+Albay,0.1212
+Apayao,0.094
+Aurora,0.0271
+Bataan,0.1721
+Batangas,0.1007
+Benguet,0.0315
+Bohol,0.042
+Bukidnon,0.1636
+Bulacan,0.3759
+Cagayan,0.3076
+Capiz,0.1255
+Catanduanes,0.0784
+Cavite,0.3289
+Cebu,0.0326
+Cotabato,0.2551
+Ifugao,0.0466
+Iloilo,0.1703
+Isabela,0.4152
+Kalinga,0.1501
+Laguna,0.1653
+Leyte,0.2429
+Marinduque,0.1162
+Palawan,0.0636
+Pampanga,0.7259
+Pangasinan,0.3171
+Quezon,0.1071
+Quirino,0.0813
+Rizal,0.1168
+Samar,0.0411
+Sarangani,0.0175
+Sorsogon,0.0567
+Tarlac,0.3341
+Zambales,0.2062
+Camarines Sur,0.281
+Metro Manila,0.5529
+Camarines Norte,0.1708
+Davao del Norte,0.0668
+Davao del Sur,0.1105
+Davao Oriental,0.0629
+Dinagat Islands,0.0529
+South Cotabato,0.0892
+Lanao del Norte,0.0646
+Zamboanga Sibugay,0.0426
+Zamboanga del Sur,0.0546
+Zamboanga del Norte,0.0512
+Surigao del Sur,0.2485
+Surigao del Norte,0.0594
+Sultan Kudarat,0.1174
+Southern Leyte,0.0316
+Nueva Vizcaya,0.0091
+Nueva Ecija,0.3719
+Negros Oriental,0.0506
+Negros Occidental,0.1599
+Mountain Province,0.0023
+Misamis Oriental,0.0697
+Misamis Occidental,0.0816
+Ilocos Sur,0.3145
+La Union,0.4366
+Lanao del Sur,0.0333
+Ilocos Norte,0.3836
+Eastern Samar,0.09
